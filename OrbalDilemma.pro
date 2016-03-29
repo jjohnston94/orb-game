@@ -15,9 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp \
     orb.cpp \
     playerorb.cpp \
-    aiorb.cpp
+    aiorb.cpp \
+    game.cpp
 
 HEADERS  += \
     orb.h \
     playerorb.h \
-    aiorb.h
+    aiorb.h \
+    game.h
+
+RESOURCES += \
+    res.qrc

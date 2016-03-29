@@ -2,13 +2,25 @@
 #include <QTimer>
 #include <QGraphicsScene>
 #include <iostream>
+#include <QList>
+#include <QPixmap>
+#include <typeinfo>
+#include "playerorb.h"
+
 AIOrb::AIOrb()
 {
-    radius = 20;
-    setRect(0,0,getRadius()*2,getRadius()*2);
+
+}
+
+AIOrb::AIOrb(qreal radius)
+{
+    this->radius = radius -.5; // .5 is being added to radius elsewhere in the program and I dont know why
+    setPixmap(QPixmap(":/images/resources/black.png").scaled(radius*2,radius*2)); // set the pixmap image and then scale it to the radius
     setAcceleration(.5);
     setMaxVelocity(5);
-    setPos(qrand() % 750, qrand() % 550);
+    do { // this is supposed to prevent aiorbs from being placed on top of each other but it doesn't seem to work
+        setPos(qrand() % 750, qrand() % 550);
+    } while (collidingItems().size() > 0);
 
     QTimer * timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(move()));
@@ -16,16 +28,30 @@ AIOrb::AIOrb()
 }
 
 void AIOrb::move()
-{
-    for (int i = 0; i < 4; i++)
+{ 
+    // the movement stuff below is just completely temporary and doesn't really do much, still need actual AI and collision prevention
+
+    /*for (int i = 0; i < 4; i++)
     {
         dirVelocity[i] = qrand() % 50; // random jerky movement
     }
-    verifyVelocities();
+
     xVel = dirVelocity[1] - dirVelocity[0];
     yVel = dirVelocity[3] - dirVelocity[2];
 
+
     setPos(x() + xVel, y() + yVel);
+
+    // Prevent intersection with other orbs
+    QList<QGraphicsItem *> collisions = collidingItems();
+    for (int i = 0; i < collisions.size(); i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            Orb * current = (Orb*)collisions[i];
+            qreal centerDist = sqrt((double) 2*radius*radius);
+        }
+    }*/
 
     // Keep orb inside window
     if (x() < 0)

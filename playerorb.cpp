@@ -8,6 +8,7 @@
 #include <typeinfo> // used to make sure we dont decrease the player when decreasing ai orbs
 #include <QRectF>
 #include <QPixmap>
+#include <math.h>
 
 PlayerOrb::PlayerOrb()
 {
@@ -18,10 +19,16 @@ PlayerOrb::PlayerOrb()
     //setRect(0,0,getRadius()*2,getRadius()*2);
     setAcceleration(.5);
     setMaxVelocity(5);
-
     QTimer * timer = new QTimer(); // timer
     connect(timer, SIGNAL(timeout()), this, SLOT(move())); // connect timer to object and slot method
     timer->start(20); //call slotted method (move()) every 20 milliseconds
+    
+    //Make another timer to constantly check the grow queue
+    QTimer * growTimer = new QTimer(); // timer
+    connect(growTimer, SIGNAL(timeout()), this, SLOT(grow())); // connect timer to object and slot method
+    growTimer->start(20); //call slotted method (grow()) every 20 milliseconds
+
+
 }
 
 void PlayerOrb::keyPressEvent(QKeyEvent *event)
@@ -48,8 +55,20 @@ void PlayerOrb::keyReleaseEvent(QKeyEvent *event)
         keyDirection[3] = false;
 }
 
+
+void PlayerOrb::grow()
+{
+    // checks if there is anything in the grow queue. if so, increase the size by growFactor
+    if (growQueue.size() > 0){
+        this->setRadius(this->getRadius() + this->growFactor);
+        growQueue.pop();
+    }
+    return;
+}
+
 void PlayerOrb::move()
 {
+
     // resize orb in case radius changed due to eating
     // Check collisions
     QList<QGraphicsItem *> collisions = collidingItems(); // collidingItems(); provides a QList of QGraphicsItem * that this item is colliding with
@@ -60,8 +79,9 @@ void PlayerOrb::move()
 
         if (radius > oradius) // if the AIOrb is smaller
         {
+
             QList<QGraphicsItem *> sceneItems = scene()->items(); // so we can alter every other orb in the scene
-            for (int j = 0; j < sceneItems.size(); j++)
+            /*for (int j = 0; j < sceneItems.size(); j++)
             {
                 if (typeid(*(sceneItems[j])) == typeid(AIOrb)) // make sure we dont alter the player
                 {
@@ -72,7 +92,13 @@ void PlayerOrb::move()
                     if (currentSI->getRadius() <= 1) // delete an orb if it gets too small
                         delete currentSI;
                 }
+            }*/
+
+            // add to the grow queue a number of nodes depending on the size of the eaten orb
+            for (int j=0;j<oradius/3;j++){
+                growQueue.push(1);
             }
+
             delete collisions[i]; // delete the orb we just ate
         }
     }

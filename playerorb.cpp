@@ -8,6 +8,7 @@
 #include <typeinfo> // used to make sure we dont decrease the player when decreasing ai orbs
 #include <QRectF>
 #include <QPixmap>
+using namespace std;
 
 PlayerOrb::PlayerOrb()
 {
@@ -60,6 +61,7 @@ void PlayerOrb::move()
 
         if (radius > oradius) // if the AIOrb is smaller
         {
+            delete collisions[i]; // delete the orb we just ate THIS LINE NEEDS TO BE HERE
             QList<QGraphicsItem *> sceneItems = scene()->items(); // so we can alter every other orb in the scene
             for (int j = 0; j < sceneItems.size(); j++)
             {
@@ -67,13 +69,13 @@ void PlayerOrb::move()
                 {
                     AIOrb * currentSI = (AIOrb*)sceneItems[j]; // cast the scene item as an AIOrb
                     qreal cradius = currentSI->getRadius();
-                    // someone please fix this weird ass formula below so that the other orbs change better
-                    currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (oradius * oradius))))); // new size of scene orb
+                    // the new equation adds the area of the eaten orb to the player orb, and scales the rest accordingly
+                    //currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (oradius * oradius))))); //Old Equation
+                    currentSI->setRadius(cradius*radius/sqrt((double) (((radius*radius) + (oradius * oradius))))); // new size of scene orb
                     if (currentSI->getRadius() <= 1) // delete an orb if it gets too small
                         delete currentSI;
                 }
             }
-            delete collisions[i]; // delete the orb we just ate
         }
     }
 
@@ -81,7 +83,7 @@ void PlayerOrb::move()
     for (int i = 0; i < 4; i++)
     {
         if (!keyDirection[i]) //if key is not being pressed
-            dirVelocity[i] -= .2; //decrease speed
+            dirVelocity[i] -= .2; //decrease speed Why not getAcceleration?
         else
             dirVelocity[i] += getAcceleration(); //increase speed
     }
@@ -103,5 +105,6 @@ void PlayerOrb::move()
         setPos(x(), 0);
     else if (y() + 2*radius > scene()->height())
         setPos(x(), scene()->height() - 2*radius);
+    //cout << "\tX: " << x() + xVel << "\tY " << y() + yVel << endl;
 
 }

@@ -1,4 +1,3 @@
-
 #include <QApplication>
 #include <QGraphicsScene>
 #include "playerorb.h"

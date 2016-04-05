@@ -12,7 +12,12 @@ AIUrchin::AIUrchin()
   
 }
 
-AIUrchin::AIUrchin()
+AIUrchin::AIUrchin(qreal radius)
 {
-  
+  */create urchin here*/
+}
+
+void AIUrchin::shrink()
+{
+  */method for shrinking player or aiorbs if hit */
 }

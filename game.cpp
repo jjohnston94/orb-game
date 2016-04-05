@@ -14,6 +14,10 @@ Game::Game()
     {
         scene->addItem(new AIOrb(qrand() % 30));
     }
+    for (int i = 0; i < 10; i++)
+    {
+        scene->addItem(new AIUrchin(/*whatever size we decide on*/));
+    }
     scene->addItem(player); // add player to scene
 
     player->setFlag(QGraphicsItem::ItemIsFocusable); // these allow the player to take in key presses

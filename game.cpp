@@ -13,7 +13,6 @@ Game::Game()
     for (int i = 0; i < 20; i++) // add ai orbs to scene
     {
         scene->addItem(new AIOrb(qrand() % 30));
-        scene->addItem(new AIUrchin(qrand() % 30));
     }
     scene->addItem(player); // add player to scene
 

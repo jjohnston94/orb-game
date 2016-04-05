@@ -5,3 +5,14 @@
 #include <QPixmap>
 #include <typeinfo>
 #include "playerorb.h"
+
+
+AIUrchin::AIUrchin()
+{
+  
+}
+
+AIUrchin::AIUrchin()
+{
+  
+}

@@ -9,7 +9,7 @@ public:
     AIUrchin();
     AIUrchin(qreal radius);
 public slots:
-    void move();
+    void shrink();
 };
 
 #endif

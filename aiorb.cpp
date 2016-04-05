@@ -64,3 +64,9 @@ void AIOrb::move()
         setPos(x(), scene()->height() - 2*radius);
 
 }
+
+AIUrchin::AIUrchin()
+{
+    
+}
+

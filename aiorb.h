@@ -12,11 +12,5 @@ public:
 public slots:
     void move();
 };
-class AIUrchin : public AIOrb
-{
-        Q_OBJECT //do i need this???
-    public:
-        AIUrchin();
-        AIUrchin(qreal radius);
-}
+
 #endif // AIORB_H

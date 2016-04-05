@@ -64,24 +64,3 @@ void AIOrb::move()
         setPos(x(), scene()->height() - 2*radius);
 
 }
-
-AIUrchin::AIUrchin()
-{
-    
-}
-
-AIUrchin::AiUrchin(qreal radius)        //where do i set radius const?
-{
-    this->radius = radius -.5; // .5 is being added to radius elsewhere in the program and I dont know why
-    setPixmap(QPixmap(":/images/resources/black.png").scaled(radius*2,radius*2)); // set the pixmap image and then scale it to the radius
-    setAcceleration(0);     //^^^ add urchin png
-    setMaxVelocity(0);
-    do { // this is supposed to prevent aiorbs from being placed on top of each other but it doesn't seem to work
-        setPos(qrand() % 750, qrand() % 550);
-    } while (collidingItems().size() > 0);
-
-    QTimer * timer = new QTimer();
-    connect(timer, SIGNAL(timeout()), this, SLOT(move()));      // do i need to worry about this for urchin?
-    timer->start(20);
-
-}

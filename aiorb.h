@@ -16,6 +16,7 @@ class AIUrchin : public AIOrb
 {
         Q_OBJECT //do i need this???
     public:
-        AIUrchin();     //do i need any more since it is inherited?
+        AIUrchin();
+        AIUrchin(qreal radius);
 }
 #endif // AIORB_H

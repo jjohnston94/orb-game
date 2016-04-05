@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include "playerorb.h"
 #include "aiorb.h"
+#include "aiurchin.h"
 #include <QGraphicsView>
 #include <QList>
 

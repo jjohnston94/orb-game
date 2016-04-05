@@ -12,5 +12,10 @@ public:
 public slots:
     void move();
 };
-
+class AIUrchin : public AIOrb
+{
+        Q_OBJECT //do i need this???
+    public:
+        AIUrchin();     //do i need any more since it is inherited?
+}
 #endif // AIORB_H

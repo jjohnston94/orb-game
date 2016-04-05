@@ -1,12 +1,5 @@
 
 #include <QApplication>
-#include <QGraphicsScene>
-#include "playerorb.h"
-#include "aiorb.h"
-#include <QGraphicsView>
-#include <QList>
-#include <iostream>
-#include <QTimer>
 #include "game.h"
 
 Game * game;

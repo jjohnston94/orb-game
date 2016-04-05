@@ -4,6 +4,7 @@
 #include <QGraphicsPixmapItem>
 #include <QObject>
 #include <QPixmap>
+#include <QString>
 
 class Orb: public QObject, public QGraphicsPixmapItem // QGraphicsEllipseItem inherits QGraphicsItem
         // we inherit QObject here so that both playerorb and aiorb inherit it (it allows signals and slots)
@@ -30,6 +31,7 @@ public:
 
 protected:
     void verifyVelocities();
+    QString imageSource;
     qreal acceleration;
     qreal maxVelocity;
     qreal radius;

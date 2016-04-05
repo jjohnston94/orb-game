@@ -6,12 +6,16 @@
 #include "aiorb.h"
 #include <QGraphicsView>
 #include <QList>
+#include <QObject>
 
-class Game
+class Game : public QObject
 {
+    Q_OBJECT
 public:
     Game();
     void show();
+public slots:
+    void gameLoop();
 private:
     PlayerOrb * player;
     QGraphicsScene * scene;

@@ -8,7 +8,7 @@ Orb::Orb()
 void Orb::setRadius(qreal radius)
 {
     this->radius = radius;
-    setPixmap(pixmap().scaled(radius*2, radius*2)); // change size of image since it depends on radius
+    setPixmap(QPixmap(imageSource).scaled((int) radius*2,(int) radius*2)); // change size of image since it depends on radius
 }
 
 qreal Orb::getRadius()

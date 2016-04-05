@@ -4,24 +4,24 @@
 #include <iostream> // purely for help finding bugs by printing stuff out
 #include <QGraphicsScene> // so this->scene() can be used
 #include <QList> // for list of colliding objects
-#include "aiorb.h" // currently not needed
+#include "aiorb.h"
 #include <typeinfo> // used to make sure we dont decrease the player when decreasing ai orbs
 #include <QRectF>
 #include <QPixmap>
+#include <QGraphicsView>
+#include <math.h>
 
 PlayerOrb::PlayerOrb()
 {
     // these should probably be paramaterized at some point
     radius = 40;
-    setPixmap(QPixmap(":/images/resources/red.png").scaled(radius*2,radius*2));
+    imageSource = ":/images/resources/red.png";
+    setPixmap(QPixmap(imageSource).scaled(radius*2,radius*2));
 
     //setRect(0,0,getRadius()*2,getRadius()*2);
-    setAcceleration(.5);
+    setAcceleration(1);
     setMaxVelocity(5);
 
-    QTimer * timer = new QTimer(); // timer
-    connect(timer, SIGNAL(timeout()), this, SLOT(move())); // connect timer to object and slot method
-    timer->start(20); //call slotted method (move()) every 20 milliseconds
 }
 
 void PlayerOrb::keyPressEvent(QKeyEvent *event)
@@ -46,11 +46,36 @@ void PlayerOrb::keyReleaseEvent(QKeyEvent *event)
         keyDirection[2] = false;
     else if (event->key() == Qt::Key_Down || event->key() == Qt::Key_S)
         keyDirection[3] = false;
+
+    if (event->key() == Qt::Key_F)
+    {
+        QGraphicsView * view = scene()->views()[0];
+        if (view->isFullScreen())
+            view->showNormal();
+        else
+            view->showFullScreen();
+    }
+    else if (event->key() == Qt::Key_Escape)
+    {
+        QGraphicsView * view = scene()->views()[0];
+        view->showNormal();
+    }
+
+
+}
+
+void PlayerOrb::grow()
+{
+    // checks if there is anything in the grow queue. if so, increase the size by growFactor
+    if (growQueue.size() > 0){
+        this->setRadius(this->getRadius() + this->growFactor);
+        growQueue.pop();
+    }
+    return;
 }
 
 void PlayerOrb::move()
 {
-    // resize orb in case radius changed due to eating
     // Check collisions
     QList<QGraphicsItem *> collisions = collidingItems(); // collidingItems(); provides a QList of QGraphicsItem * that this item is colliding with
     for (int i = 0; i < collisions.size(); i++)
@@ -60,20 +85,22 @@ void PlayerOrb::move()
 
         if (radius > oradius) // if the AIOrb is smaller
         {
+            delete current; // delete the orb we just ate
             QList<QGraphicsItem *> sceneItems = scene()->items(); // so we can alter every other orb in the scene
             for (int j = 0; j < sceneItems.size(); j++)
             {
-                if (typeid(*(sceneItems[j])) == typeid(AIOrb)) // make sure we dont alter the player
+                if (typeid(*(sceneItems[j])) == typeid(AIOrb) && sceneItems[j] != collisions[i]) // make sure we dont alter the player
                 {
                     AIOrb * currentSI = (AIOrb*)sceneItems[j]; // cast the scene item as an AIOrb
                     qreal cradius = currentSI->getRadius();
-                    // someone please fix this weird ass formula below so that the other orbs change better
-                    currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (oradius * oradius))))); // new size of scene orb
-                    if (currentSI->getRadius() <= 1) // delete an orb if it gets too small
-                        delete currentSI;
+                    // the new equation adds the area of the eaten orb to the player orb, and scales the rest accordingly
+                    //currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (oradius * oradius))))); //Old Equation
+                    currentSI->setRadius(cradius*radius/sqrt((double) (((radius*radius) + (oradius * oradius))))); // new size of scene orb
+
                 }
             }
-            delete collisions[i]; // delete the orb we just ate
+            for (int j=0;j<oradius/3;j++)
+                growQueue.push(1);
         }
     }
 

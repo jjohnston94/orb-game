@@ -16,7 +16,7 @@ Game::Game()
     }
     for (int i = 0; i < 10; i++)
     {
-        scene->addItem(new AIUrchin(/*whatever size we decide on*/));
+        scene->addItem(new AIUrchin());
     }
     scene->addItem(player); // add player to scene
 

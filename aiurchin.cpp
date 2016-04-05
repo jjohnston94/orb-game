@@ -10,12 +10,11 @@
 AIUrchin::AIUrchin()
 {
   */create urchin here*/
-  this->radius = radius -.5; // .5 is being added to radius elsewhere in the program and I dont know why
-    setPixmap(QPixmap(":/images/resources/urchin.png").scaled(radius*2,radius*2)); // need to upload an image for urchin orb
-
-    do { // this is supposed to prevent aiorbs from being placed on top of each other but it doesn't seem to work
-        setPos(qrand() % 750, qrand() % 550);
-    } while (collidingItems().size() > 0);
+  radius = 30;
+  setPixmap(QPixmap(":/images/resources/urchin.png").scaled(radius*2,radius*2)); // need to upload an image for urchin orb
+  do { // this is supposed to prevent aiorbs from being placed on top of each other but it doesn't seem to work
+   setPos(qrand() % 750, qrand() % 550);
+  } while (collidingItems().size() > 0);
 }
 
 

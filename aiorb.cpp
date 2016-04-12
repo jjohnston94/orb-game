@@ -17,19 +17,19 @@ AIOrb::AIOrb()
 
 }
 
-AIOrb::AIOrb(qreal radius)
+AIOrb::AIOrb(qreal radius, int x, int y)
 {
     this->radius = radius -.5; // .5 is being added to radius elsewhere in the program and I dont know why
     imageSource = ":/images/resources/black.png";
     setPixmap(QPixmap(imageSource).scaled(radius*2,radius*2)); // set the pixmap image and then scale it to the radius
     setAcceleration(.5);
     setMaxVelocity(5);
-    setPos(qrand() % 1900*2, qrand() % 1060*2);
+    setPos(x, y);
 
 }
 
 void AIOrb::move()
-{ 
+{
 
     setMaxVelocity(-0.1*radius+9); //Set the max velocity to be a function of the size.
     qreal range = 50*maxVelocity; //The distance that an orb can see around itself is a function of its max velocity
@@ -110,7 +110,8 @@ void AIOrb::move()
         } else lAngleGood;
     }*/
 
-    setPos(x() + xVel, y() + yVel);
+    //setPos(x() + xVel, y() + yVel);
+
 
 
     QList<QGraphicsItem *> collisions = collidingItems();

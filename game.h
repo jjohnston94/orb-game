@@ -14,14 +14,20 @@ class Game : public QObject
 public:
     Game();
     void show();
+    int WINDOW_WIDTH;
+    int WINDOW_HEIGHT;
 public slots:
     void gameLoop();
+    void spawnAI();
 private:
+    QTimer * timer;
+    QList<AIOrb* > * aiList;
     PlayerOrb * player;
     QGraphicsScene * scene;
     QGraphicsView * view;
-    int WINDOW_WIDTH;
-    int WINDOW_HEIGHT;
+
+    int VIEW_WIDTH;
+    int VIEW_HEIGHT;
 };
 
 #endif // GAME_H

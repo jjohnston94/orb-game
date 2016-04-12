@@ -17,7 +17,7 @@ private:
     bool keyDirection[4];
     qreal b;
     // I made these private
-    float growFactor = 2.0; // determines the amount the orb grows each time another orb is eaten
+    double growFactor; // determines the amount the orb grows each time another orb is eaten
     std::queue<int> growQueue;
 };
 

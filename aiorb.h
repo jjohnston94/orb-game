@@ -7,7 +7,7 @@ class AIOrb : public Orb
     Q_OBJECT // this macro or whatever is necessary for slots and signals? (still not sure how those work)
 public:
     AIOrb();
-    AIOrb(qreal radius);
+    AIOrb(qreal radius, int x, int y);
     void test();
 public slots:
     void move();

@@ -15,12 +15,11 @@ PlayerOrb::PlayerOrb()
 {
     // these should probably be paramaterized at some point
     radius = 40;
-    imageSource = ":/images/resources/red.png";
+    imageSource = ":/images/resources/orbPlaceholder.png";
     setPixmap(QPixmap(imageSource).scaled(radius*2,radius*2));
-
-    //setRect(0,0,getRadius()*2,getRadius()*2);
+    setPos(1000, 800);
     setAcceleration(1);
-    setMaxVelocity(5);
+    setMaxVelocity(7.5);
 
 }
 

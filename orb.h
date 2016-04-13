@@ -6,7 +6,7 @@
 #include <QPixmap>
 #include <QString>
 
-class Orb: public QObject, public QGraphicsPixmapItem // QGraphicsEllipseItem inherits QGraphicsItem
+class Orb: public QGraphicsPixmapItem // QGraphicsEllipseItem inherits QGraphicsItem
         // we inherit QObject here so that both playerorb and aiorb inherit it (it allows signals and slots)
 {
 public:

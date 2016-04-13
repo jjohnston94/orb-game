@@ -18,8 +18,8 @@ PlayerOrb::PlayerOrb()
     imageSource = ":/images/resources/orbPlaceholder.png";
     setPixmap(QPixmap(imageSource).scaled(radius*2,radius*2));
     setPos(1000, 800);
-    setAcceleration(1);
-    setMaxVelocity(7.5);
+    setAcceleration(.5);
+    setMaxVelocity(5);
 
 }
 
@@ -65,12 +65,18 @@ void PlayerOrb::keyReleaseEvent(QKeyEvent *event)
 
 void PlayerOrb::grow()
 {
-    // checks if there is anything in the grow queue. if so, increase the size by growFactor
-    if (growQueue.size() > 0){
-        this->setRadius(this->getRadius() + this->growFactor);
+    // checks if there is anything in the grow queue. if so, increase the size by the next amount in the queue
+    if (growQueue.size() > 0)
+    {
+        setRadius(radius + growQueue.front());
         growQueue.pop();
     }
-    return;
+}
+
+void PlayerOrb::growBy(qreal amount)
+{
+    for (int j=0; j<5; j++)
+        growQueue.push(amount/5);
 }
 
 void PlayerOrb::move()
@@ -80,12 +86,13 @@ void PlayerOrb::move()
     for (int i = 0; i < collisions.size(); i++)
     {
         AIOrb * current = (AIOrb*)collisions[i]; // cast the colliding objects as AIOrb references so their member functions can be accessed
-        qreal oradius = current->getRadius();
+        qreal aiRadius = current->getRadius();
 
-        if (radius > oradius) // if the AIOrb is smaller
+        if (radius > aiRadius) // if the AIOrb is smaller
         {
+            scene()->removeItem(collisions[i]);
             delete current; // delete the orb we just ate
-            QList<QGraphicsItem *> sceneItems = scene()->items(); // so we can alter every other orb in the scene
+            /*QList<QGraphicsItem *> sceneItems = scene()->items(); // so we can alter every other orb in the scene
             for (int j = 0; j < sceneItems.size(); j++)
             {
                 if (typeid(*(sceneItems[j])) == typeid(AIOrb) && sceneItems[j] != collisions[i]) // make sure we dont alter the player
@@ -93,13 +100,14 @@ void PlayerOrb::move()
                     AIOrb * currentSI = (AIOrb*)sceneItems[j]; // cast the scene item as an AIOrb
                     qreal cradius = currentSI->getRadius();
                     // the new equation adds the area of the eaten orb to the player orb, and scales the rest accordingly
-                    //currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (oradius * oradius))))); //Old Equation
-                    currentSI->setRadius(cradius*radius/sqrt((double) (((radius*radius) + (oradius * oradius))))); // new size of scene orb
+                    //currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (aiRadius * aiRadius))))); //Old Equation
+                    currentSI->setRadius(cradius*radius/sqrt((double) (((radius*radius) + (aiRadius * aiRadius))))); // new size of scene orb
 
                 }
-            }
-            for (int j=0;j<oradius/3;j++)
-                growQueue.push(1);
+            }*/
+            // The radius to be added -- calculated in terms of area
+            qreal radiusDiff = sqrt( (double) (radius*radius + aiRadius*aiRadius) ) - radius;
+            growBy(radiusDiff);
         }
     }
 
@@ -119,6 +127,9 @@ void PlayerOrb::move()
 
     // Move in a direction
     setPos(x() + xVel, y() + yVel);
+
+    // Grow the player if there is something in the growQueue
+    grow();
 
     // Keep player inside window
     if (x() < 0)

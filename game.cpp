@@ -67,7 +67,7 @@ void Game::spawnAI()
     {
         if (player->y() < 3500)
         {
-            AIOrb* newAI = new AIOrb(20, qrand() % VIEW_WIDTH, (qrand() % 500) + (player->y()+1000));
+            AIOrb* newAI = new AIOrb(39, qrand() % VIEW_WIDTH, (qrand() % 500) + (player->y()+1000));
             aiList->append(newAI);
             scene->addItem(newAI);
         }
@@ -85,7 +85,6 @@ void Game::spawnAI()
 void Game::gameLoop()
 {
     player->move();
-    player->grow();
     player->setFocus(); // to fix the clicking issue - could be considered sloppy but it works
     view->centerOn(player);
     spawnAI();

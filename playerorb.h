@@ -5,20 +5,18 @@
 #include "orb.h"
 class PlayerOrb : public Orb
 {
-    Q_OBJECT
 public:
     PlayerOrb();
     void keyPressEvent(QKeyEvent * event);
     void keyReleaseEvent(QKeyEvent *event);
-public slots:
     void move();
-    void grow();
+    void growBy(qreal amount);
 private:
-    bool keyDirection[4];
+    bool keyDirection[4]; // 0L 1R 2U 3D
     qreal b;
-    // I made these private
-    double growFactor; // determines the amount the orb grows each time another orb is eaten
-    std::queue<int> growQueue;
+    std::queue<qreal> growQueue;
+
+    void grow();
 };
 
 #endif // PLAYERORB_H

@@ -76,14 +76,14 @@ void Orb::verifyVelocities()
         else if (dirVelocity[i] < 0)
             dirVelocity[i] = 0;
 
-        if (xVel > maxVelocity * 2) // maxvelocity *2 so that colliding ai orbs actually change speed?
-            xVel = maxVelocity * 2;
-        else if (xVel < -maxVelocity * 2)
-            xVel = -maxVelocity * 2;
-        if (yVel > maxVelocity * 2)
-            yVel = maxVelocity * 2;
-        else if (xVel < -maxVelocity * 2)
-            yVel = -maxVelocity * 2;
+        if (xVel > maxVelocity)
+            xVel = maxVelocity;
+        else if (xVel < -maxVelocity )
+            xVel = -maxVelocity;
+        if (yVel > maxVelocity)
+            yVel = maxVelocity;
+        else if (xVel < -maxVelocity)
+            yVel = -maxVelocity;
     }
 }
 

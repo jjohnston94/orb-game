@@ -9,33 +9,29 @@
 
 Game::Game()
 {
-
+    // Get the specific geometry of the user's screen to get the window size
     QRect rec = QApplication::desktop()->screenGeometry(); // get screen geometry for width and height
     WINDOW_HEIGHT = rec.height();
     WINDOW_WIDTH = rec.width();
 
+    // Total size of the game environment (on and off screen)
     VIEW_WIDTH = 3000;
     VIEW_HEIGHT = 5000;
 
-    scene = new QGraphicsScene(); // this holds graphicsitems and stuff
+    // Initialize the scene, which holds QGraphicsItems
+    scene = new QGraphicsScene();
     scene->setSceneRect(0,0, VIEW_WIDTH, VIEW_HEIGHT);
 
+    // Initialize list of AIOrbs so we can manipulate all of them
+    aiList = new QList<AIOrb *>();
 
-    aiList = new QList<AIOrb *>(); // List of ai orbs so we can manipulate them later
-    /*for (int i = 0; i < 25; i++) // add ai orbs to scene
-    {
-        aiList->append(new AIOrb(qrand() % 50, qrand() % VIEW_WIDTH, qrand() % VIEW_HEIGHT));
-        scene->addItem(aiList->at(i));
-        while (aiList->at(i)->collidingItems().size() > 0)       //Prevents orbs from being placed on each other
-            aiList->at(i)->setPos(qrand() % 3000, qrand() % 10000);
-    }*/
-
+    // Initialize the player, add them to the scene, and allow them to be focused on
     player = new PlayerOrb(); // the player
     scene->addItem(player);
-    player->setFlag(QGraphicsItem::ItemIsFocusable); // these allow the player to take in key presses
-    player->setFocus(); // Note: only one thing can be focused on, so other objects cant take key presses afaik
+    player->setFlag(QGraphicsItem::ItemIsFocusable); // Focus allows the object to take in keypresses
 
-    view = new QGraphicsView(scene); // the view actually displays the scene
+    // Initialize the view and set it to display the scene
+    view = new QGraphicsView(scene);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // get rid of scroll bars
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setFixedSize(WINDOW_WIDTH,WINDOW_HEIGHT);
@@ -44,13 +40,13 @@ Game::Game()
     QLinearGradient gradient(QPointF(WINDOW_WIDTH,0), QPointF(0,2000));
     gradient.setColorAt(0,Qt::blue);
     gradient.setColorAt(1,Qt::darkMagenta);
-
     scene->setBackgroundBrush(gradient);
 
-    // Single timer that calls gameLoop, and move for the player and all AI
+    // Single timer that calls gameLoop which controls the movements of the other objects
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(gameLoop()));;
 
+    // Timer called every 20 milliseconds
     timer->start(20);
 
 }
@@ -77,9 +73,7 @@ void Game::spawnAI()
             aiList->append(newAI2);
             scene->addItem(newAI2);
         }
-
     }
-
 }
 
 void Game::gameLoop()
@@ -87,8 +81,10 @@ void Game::gameLoop()
     player->move();
     player->setFocus(); // to fix the clicking issue - could be considered sloppy but it works
     view->centerOn(player);
+
     spawnAI();
 
+    // Only call "move()" for AIOrbs currently on the screen/view
     QList<QGraphicsItem*> itemList = view->items(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
     for (int i = 0; i < itemList.size(); i++)
     {

@@ -79,25 +79,6 @@ void AIOrb::move()
                 yVMag -= sin(angle)*(orbEffect);
             }
         }
-        /*
-    //Keep away from the walls
-    //Not sure if this is actually useful
-    if (x() < range/4) {
-        xVMag += cos(Pi/4)*(range - x())/4;
-        yVMag -= sin(Pi/4)*(range - x())/4;
-    }
-    if (y() < range/4) {
-        xVMag += cos(-Pi/4)*(range - y())/4;
-        yVMag -= sin(-Pi/4)*(range - y())/4;
-    }
-    if (x()+ 2*radius > scene()->width() - range/4){
-        xVMag += cos(-Pi/4)*(range - y())/4;
-        yVMag += sin(-Pi/4)*(range - y())/4;
-    }
-    if (y()+ 2*radius > scene()->height() - range/4){
-        xVMag += cos(Pi/4)*(range - y())/4;
-        yVMag += sin(Pi/4)*(range - y())/4;
-    }*/
 
         //Scale xVMag and yVMag to the max velocity
         xVel = xVMag * maxVelocity / sqrt((double) xVMag*xVMag+yVMag*yVMag+0.0001);
@@ -113,20 +94,6 @@ void AIOrb::move()
             xVel = xVMag * maxVelocity / sqrt((double) xVMag*xVMag+yVMag*yVMag+0.0001);
             yVel = yVMag * maxVelocity / sqrt((double) xVMag*xVMag+yVMag*yVMag+0.0001);
         }
-
-        /*
-    bool lAngleGood = false, rAngleGood = false;
-    qreal lang = atan(yVel/xVel), rang = lang;
-    while (true){
-        if (lAngleGood){
-            xVel += cos(lang);
-            yVel += sin(lang);
-            break;
-        }
-        if (x() + cos(lang) < 50 && y() + sin(lang) < 50 && sqrt(pow((x()+cos(lang)-50),2) + pow((y()+sin(lang)-50),2)) > 50){
-            lang += Pi/36;
-        } else lAngleGood;
-    }*/
 
         setPos(x() + xVel, y() + yVel);
     }

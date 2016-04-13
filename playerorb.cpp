@@ -92,25 +92,14 @@ void PlayerOrb::move()
         {
             scene()->removeItem(collisions[i]);
             delete current; // delete the orb we just ate
-            /*QList<QGraphicsItem *> sceneItems = scene()->items(); // so we can alter every other orb in the scene
-            for (int j = 0; j < sceneItems.size(); j++)
-            {
-                if (typeid(*(sceneItems[j])) == typeid(AIOrb) && sceneItems[j] != collisions[i]) // make sure we dont alter the player
-                {
-                    AIOrb * currentSI = (AIOrb*)sceneItems[j]; // cast the scene item as an AIOrb
-                    qreal cradius = currentSI->getRadius();
-                    // the new equation adds the area of the eaten orb to the player orb, and scales the rest accordingly
-                    //currentSI->setRadius(sqrt((double) ((radius*radius * cradius*cradius) / ((radius*radius) + (aiRadius * aiRadius))))); //Old Equation
-                    currentSI->setRadius(cradius*radius/sqrt((double) (((radius*radius) + (aiRadius * aiRadius))))); // new size of scene orb
 
-                }
-            }*/
             // The radius to be added -- calculated in terms of area
             qreal radiusDiff = sqrt( (double) (radius*radius + aiRadius*aiRadius) ) - radius;
             growBy(radiusDiff);
         }
     }
 
+    // MOVEMENT
     // Slow down or speed up
     for (int i = 0; i < 4; i++)
     {

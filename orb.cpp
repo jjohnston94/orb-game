@@ -16,6 +16,16 @@ qreal Orb::getRadius()
     return radius;
 }
 
+void Orb::setActualRadius(qreal actradius)
+{
+    this->actualRadius = actradius;
+}
+
+qreal Orb::getActualRadius()
+{
+    return actualRadius;
+}
+
 void Orb::setAcceleration(qreal acc)
 {
     this->acceleration = acc;

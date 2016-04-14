@@ -14,6 +14,9 @@ public:
     void setRadius(qreal radius);
     qreal getRadius();
 
+    void setActualRadius(qreal radius);
+    qreal getActualRadius();
+
     void setAcceleration(qreal acc);
     qreal getAcceleration();
 
@@ -38,6 +41,7 @@ protected:
     qreal dirVelocity[4];
     qreal xVel;
     qreal yVel;
+    qreal actualRadius;
 
 };
 

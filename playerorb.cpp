@@ -14,12 +14,13 @@
 PlayerOrb::PlayerOrb()
 {
     // these should probably be paramaterized at some point
-    radius = 40;
+
     imageSource = ":/images/resources/orbPlaceholder.png";
-    setPixmap(QPixmap(imageSource).scaled(radius*2,radius*2));
-    setPos(1000, 800);
-    setAcceleration(.5);
-    setMaxVelocity(5);
+    setRadius(40);
+    actualRadius = radius;
+    setPos(800, 1900);
+    setAcceleration(2);
+    setMaxVelocity(20);
 
 }
 
@@ -79,26 +80,14 @@ void PlayerOrb::growBy(qreal amount)
         growQueue.push(amount/5);
 }
 
+void PlayerOrb::shrinkBy(qreal amount)
+{
+    for (int j=0; j<5; j++)
+        growQueue.push(-amount/5);
+}
+
 void PlayerOrb::move()
 {
-    // Check collisions
-    QList<QGraphicsItem *> collisions = collidingItems(); // collidingItems(); provides a QList of QGraphicsItem * that this item is colliding with
-    for (int i = 0; i < collisions.size(); i++)
-    {
-        AIOrb * current = (AIOrb*)collisions[i]; // cast the colliding objects as AIOrb references so their member functions can be accessed
-        qreal aiRadius = current->getRadius();
-
-        if (radius > aiRadius) // if the AIOrb is smaller
-        {
-            scene()->removeItem(collisions[i]);
-            delete current; // delete the orb we just ate
-
-            // The radius to be added -- calculated in terms of area
-            qreal radiusDiff = sqrt( (double) (radius*radius + aiRadius*aiRadius) ) - radius;
-            growBy(radiusDiff);
-        }
-    }
-
     // MOVEMENT
     // Slow down or speed up
     for (int i = 0; i < 4; i++)

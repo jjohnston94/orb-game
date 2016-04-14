@@ -20,11 +20,12 @@ AIOrb::AIOrb()
 AIOrb::AIOrb(qreal radius, int x, int y)
 {
     imageSource = ":/images/resources/black.png";
-    setRadius(radius-.5); // set the pixmap image and then scale it to the radius
+    setRadius(radius); // set the pixmap image and then scale it to the radius
+    actualRadius = radius;
     setAcceleration(.5);
     setMaxVelocity(5);
     setPos(x, y);
-    aiOn = false;
+    aiOn = true;
 
 }
 
@@ -34,7 +35,6 @@ void AIOrb::grow()
     if (growQueue.size() > 0)
     {
         setRadius(radius + growQueue.front());
-        std::cout << growQueue.front() << " added to radius. ";
         growQueue.pop();
     }
 }
@@ -43,6 +43,12 @@ void AIOrb::growBy(qreal amount)
 {
     for (int j=0; j<5; j++)
         growQueue.push(amount/5);
+}
+
+void AIOrb::shrinkBy(qreal amount)
+{
+    for (int j=0; j<5; j++)
+        growQueue.push(-amount/5);
 }
 
 void AIOrb::move()
@@ -98,27 +104,6 @@ void AIOrb::move()
         setPos(x() + xVel, y() + yVel);
     }
 
-
-
-    QList<QGraphicsItem *> collisions = collidingItems();
-    for (int i = 0; i < collisions.size(); i++) {
-        Orb * current = (Orb*)collisions[i]; // cast the colliding objects as Orb references so their member functions can be accessed
-        qreal oradius = current->getRadius();
-        if (radius > oradius && typeid(*current) != typeid(PlayerOrb)) { // if the Orb is smaller
-            growBy((sqrt((double) (radius*radius + oradius*oradius))) - radius);
-            delete collisions[i]; // delete the orb we just ate
-        }
-        else if (typeid(*current) == typeid(PlayerOrb))
-        {
-            current->setRadius(current->getRadius() -.1);
-            if (current->getRadius() < 10)
-                current->setRadius(10);
-        }
-    }
-
-    // Grow if there's something in the growQueue
-    grow();
-
     // Keep orb inside window
     if (x() < 0)
         setPos(0, y());
@@ -129,6 +114,4 @@ void AIOrb::move()
     else if (y() + 2*radius > scene()->height())
         setPos(x(), scene()->height() - 2*radius);
 
-    if (radius <= 4) // delete an orb if it gets too small
-        delete this;
 }

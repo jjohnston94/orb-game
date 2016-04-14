@@ -11,6 +11,7 @@ public:
     void keyReleaseEvent(QKeyEvent *event);
     void move();
     void growBy(qreal amount);
+    void shrinkBy(qreal amount);
 private:
     bool keyDirection[4]; // 0L 1R 2U 3D
     qreal b;

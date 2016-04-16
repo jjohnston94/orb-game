@@ -63,6 +63,7 @@ void Game::show()
     timer->start(20);
 }
 
+// Spawn the AI (currently only below)
 void Game::spawnAI()
 {
     int max = 50;
@@ -229,12 +230,12 @@ void Game::moveCollideAI()
 
                 // If the current AIOrb is bigger than the player
                 else if (thisRadius > oradius && typeid(*(collided)) == typeid(PlayerOrb))
-                {
+                {/*
                     if (player->getRadius() > 15)
                     {
                         player->shrinkBy(1);
                         player->setActualRadius(player->getActualRadius()-1);
-                    }
+                    }*/
                 }
             }
         }

@@ -8,5 +8,6 @@ class FeederOrb : public Orb
 public:
     FeederOrb();
     FeederOrb(qreal radius, int x, int y);
+    void move();
 };
 #endif // FEEDERORB_H

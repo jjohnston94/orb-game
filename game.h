@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include "playerorb.h"
 #include "aiorb.h"
+#include "feederOrb.h"
 #include <QGraphicsView>
 #include <QList>
 #include <QObject>
@@ -21,6 +22,7 @@ public slots:
 private:
     QTimer * timer;
     QList<AIOrb* > * aiList;
+    QList<FeederOrb*> * feederList;
     QList<QGraphicsItem*> itemViewList;
     PlayerOrb * player;
     QGraphicsScene * scene;
@@ -31,10 +33,11 @@ private:
     int scale;
     int lastScale;
 
-    void deleteAI(AIOrb * ai);
+    void deleteAI(Orb * orb);
     void changeScale();
     void spawnAI();
-    void moveCollideAI();
+    void moveCollideOrbs();
+    void spawnFeeders();
 };
 
 #endif // GAME_H

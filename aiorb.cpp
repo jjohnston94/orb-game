@@ -19,7 +19,7 @@ AIOrb::AIOrb()
 
 AIOrb::AIOrb(qreal radius, int x, int y)
 {
-    imageSource = ":/images/resources/pinkFood2.png";
+    imageSource = ":/images/resources/blueFood.png";
     setRadius(radius); // set the pixmap image and then scale it to the radius
     actualRadius = radius;
     setAcceleration(.5);
@@ -56,6 +56,8 @@ void AIOrb::move()
     if (aiOn)
     {
         setMaxVelocity(-0.1*radius+9); //Set the max velocity to be a function of the size.
+        if (maxVelocity < 1)
+            maxVelocity = 1;
         qreal range = 50*maxVelocity; //The distance that an orb can see around itself is a function of its max velocity
         qreal xVMag = 0, yVMag = 0;
 

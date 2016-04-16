@@ -19,7 +19,7 @@ AIOrb::AIOrb()
 
 AIOrb::AIOrb(qreal radius, int x, int y)
 {
-    imageSource = ":/images/resources/blueFood.png";
+    imageSource = ":/images/resources/red.png";
     setRadius(radius); // set the pixmap image and then scale it to the radius
     actualRadius = radius;
     setAcceleration(.5);
@@ -56,9 +56,9 @@ void AIOrb::move()
     if (aiOn)
     {
         setMaxVelocity(-0.1*radius+9); //Set the max velocity to be a function of the size.
-        if (maxVelocity < 1)
-            maxVelocity = 1;
+        if (maxVelocity < 2) maxVelocity = 2;
         qreal range = 50*maxVelocity; //The distance that an orb can see around itself is a function of its max velocity
+        if (range < 200) range = 200;
         qreal xVMag = 0, yVMag = 0;
 
         //Check for a range around an orb, and then run from or chase the orbs in that range
@@ -73,7 +73,7 @@ void AIOrb::move()
             if (item == this)
                 continue;
             QLineF lineToOrb(QPointF(radius, radius), mapFromItem(item, current->getRadius(),current->getRadius())); //The distance between the midpoints
-            qreal distance = lineToOrb.length() - current->getRadius(); //The distance to the border of the orb
+            qreal distance = lineToOrb.length() - current->getRadius() - radius; //The distance to the border of the orb
             qreal angle = ::acos(lineToOrb.dx() / lineToOrb.length()); //The angle of the orb
             if (lineToOrb.dy() > 0)
                 angle = TwoPi - angle;

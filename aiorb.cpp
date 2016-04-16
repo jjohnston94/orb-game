@@ -19,7 +19,7 @@ AIOrb::AIOrb()
 
 AIOrb::AIOrb(qreal radius, int x, int y)
 {
-    imageSource = ":/images/resources/black.png";
+    imageSource = ":/images/resources/pinkFood2.png";
     setRadius(radius); // set the pixmap image and then scale it to the radius
     actualRadius = radius;
     setAcceleration(.5);

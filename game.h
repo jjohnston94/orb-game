@@ -31,8 +31,10 @@ private:
     int scale;
     int lastScale;
 
+    void deleteAI(AIOrb * ai);
     void changeScale();
     void spawnAI();
+    void moveCollideAI();
 };
 
 #endif // GAME_H

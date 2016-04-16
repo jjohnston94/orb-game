@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <typeinfo>
+#include "feederOrb.h"
 
 Game::Game()
 {
@@ -16,7 +17,7 @@ Game::Game()
 
     // Total size of the game environment (on and off screen)
     SCENE_WIDTH = 3000;
-    SCENE_HEIGHT = 10000;
+    SCENE_HEIGHT = 20000;
 
     // Initialize the scene, which holds QGraphicsItems
     scene = new QGraphicsScene();
@@ -24,14 +25,6 @@ Game::Game()
 
     // Initialize list of AIOrbs so we can manipulate all of them
     aiList = new QList<AIOrb *>();
-
-    for (int i = 0; i < 50; i++) // add ai orbs to scene
-    {
-        aiList->append(new AIOrb( 5+(qrand() % 25) ,qrand() % 2000, qrand() % 1800));
-        scene->addItem(aiList->at(i));
-        while (aiList->at(i)->collidingItems().size() > 0)       //Prevents orbs from being placed on each other
-            aiList->at(i)->setPos(qrand() % 2000, qrand() % 1800);
-    }
 
     // Scale
     scale = 1;
@@ -50,10 +43,12 @@ Game::Game()
     view->setFixedSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 
     //  A nice gradient background
-    QLinearGradient gradient(QPointF(WINDOW_WIDTH,0), QPointF(0,2000));
+    QRadialGradient gradient(QPointF(SCENE_WIDTH/2, SCENE_HEIGHT/2), 75);
     gradient.setColorAt(0,Qt::blue);
-    gradient.setColorAt(1,Qt::darkMagenta);
+    gradient.setColorAt(1,Qt::black);
+    gradient.setSpread(QGradient::ReflectSpread);
     scene->setBackgroundBrush(gradient);
+    //scene->setBackgroundBrush(QPixmap(":/images/resources/bg.png"));
 
     // Single timer that calls gameLoop which controls the movements of the other objects
     timer = new QTimer();
@@ -73,15 +68,15 @@ void Game::spawnAI()
     int max = 50;
     if (aiList->size() < max)
     {
-        if (player->y() < 4500)
+        if (player->y() > 0 && player->y() < SCENE_HEIGHT-WINDOW_HEIGHT)
         {
-            AIOrb* newAI = new AIOrb(39, qrand() % SCENE_WIDTH, (qrand() % 500) + (player->y()+10));
+            AIOrb* newAI = new AIOrb(10 + qrand()%(int)player->getRadius()-10, qrand() % SCENE_WIDTH, (qrand() % 1000) + (player->y()+WINDOW_HEIGHT));
             aiList->append(newAI);
             scene->addItem(newAI);
         }
-        if (player->y() > 5500)
+        if (player->y() < SCENE_HEIGHT && player->y() > WINDOW_HEIGHT && false)
         {
-            AIOrb* newAI2 = new AIOrb(20, qrand() % SCENE_WIDTH, (player->y()-1000) - (qrand() % 500));
+            AIOrb* newAI2 = new AIOrb(10 + qrand()%(int)player->getRadius()-20, qrand() % SCENE_WIDTH, (player->y()-WINDOW_HEIGHT) - (qrand() % 1000));
             aiList->append(newAI2);
             scene->addItem(newAI2);
         }
@@ -114,6 +109,12 @@ void Game::changeScale()
 
 }
 
+void Game::deleteAI(AIOrb * orb)
+{
+    scene->removeItem((QGraphicsItem*) orb);
+    aiList->removeAt(aiList->indexOf(orb));
+    delete orb;
+}
 
 void Game::gameLoop()
 {
@@ -121,6 +122,7 @@ void Game::gameLoop()
 
     // Check collisions with the player
     QList<QGraphicsItem *> collisions = player->collidingItems();
+
     // For every item the player is colliding with
     for (int i = 0; i < collisions.size(); i++)
     {
@@ -133,24 +135,54 @@ void Game::gameLoop()
         if (pRadius > aiRadius)
         {
             // Remove the item from the scene and aiList and delete it
-            scene->removeItem(collisions[i]);
-            aiList->removeAt(aiList->indexOf( (AIOrb*)current) );
-            delete collisions[i];
+            deleteAI((AIOrb*)current);
 
-            // Add the area of the eaten orb to the player
-            qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
-            player->setActualRadius(player->getActualRadius() + radiusDiff);
-            player->growBy(radiusDiff);
+            // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
+            if (player->getRadius() < 300)
+            {
+                qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
+                player->setActualRadius(player->getActualRadius() + radiusDiff);
+                player->growBy(radiusDiff);
+            }
         }
     }
 
     // Re-set the focus to the player to make sure it can still move
     player->setFocus();
+
     // Center the view on the player so that it follows the player around
     view->centerOn(player);
 
-    //spawnAI();
+    // Spawn AIOrbs if applicable
+    spawnAI();
 
+    // Move AI if in view and check their collisions
+    moveCollideAI();
+
+    // Make sure all of the AI grow/shrink regardless of whether they are in the view
+    for (int i = 0; i < aiList->size(); i++)
+        aiList->at(i)->grow();
+
+    // If an AI gets too small, delete it
+    for (int i = 0; i < aiList->size(); i++)
+    {
+        if (aiList->at(i)->getRadius() < 10)
+            deleteAI(aiList->at(i));
+    }
+
+    // Make the scale of everything change at height intervals
+    int divisor = SCENE_HEIGHT / 5;
+    if (lastScale != scale)
+    {
+        changeScale();
+        lastScale = scale;
+    }
+    scale = ((int) (player->y()/divisor)) + 1;
+
+}
+
+void Game::moveCollideAI()
+{
     // Get a list of all the items seen in the view
     itemViewList = view->items(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
 
@@ -168,7 +200,7 @@ void Game::gameLoop()
             aiOrb->move();
 
             // Get a list of collisions with the current AIOrb
-            collisions = aiOrb->collidingItems();
+            QList<QGraphicsItem*> collisions = aiOrb->collidingItems();
             qreal thisRadius = aiOrb->getRadius();
 
             // For every item the current AIOrb is colliding with
@@ -182,34 +214,30 @@ void Game::gameLoop()
                 if (thisRadius > oradius && typeid(*(collided)) == typeid(AIOrb))
                 {
                     // Remove the item from the scene and aiList and delete it
-                    scene->removeItem(collisions[i]);
                     itemViewList.removeAt(itemViewList.indexOf(collisions[i]));
-                    aiList->removeAt(aiList->indexOf( (AIOrb*)collided) );
-                    delete collisions[i];
+                    deleteAI((AIOrb*)collided);
 
                     // Then increase the size of the current AIOrb
-                    qreal radiusDiff = (sqrt((double) (thisRadius*thisRadius + oradius*oradius))) - thisRadius;
-                    aiOrb->growBy(radiusDiff);
-                    aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff);
+                    if (aiOrb->getRadius() < player->getRadius() + 20)
+                    {
+                        qreal radiusDiff = (sqrt((double) (thisRadius*thisRadius + oradius*oradius))) - thisRadius;
+                        aiOrb->growBy(radiusDiff);
+                        aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff);
+                    }
 
+                }
+
+                // If the current AIOrb is bigger than the player
+                else if (thisRadius > oradius && typeid(*(collided)) == typeid(PlayerOrb))
+                {
+                    if (player->getRadius() > 15)
+                    {
+                        player->shrinkBy(1);
+                        player->setActualRadius(player->getActualRadius()-1);
+                    }
                 }
             }
         }
     }
-
-    // Make sure all of the AI grow/shrink regardless of whether they are in the view
-    for (int i = 0; i < aiList->size(); i++)
-        aiList->at(i)->grow();
-
-    // Make the scale of everything change at height intervals
-    int divisor = SCENE_HEIGHT / 5;
-    if (lastScale != scale)
-    {
-        changeScale();
-        lastScale = scale;
-    }
-    scale = ((int) (player->y()/divisor)) + 1;
-
-
 }
 

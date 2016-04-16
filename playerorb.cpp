@@ -93,7 +93,7 @@ void PlayerOrb::move()
     for (int i = 0; i < 4; i++)
     {
         if (!keyDirection[i]) //if key is not being pressed
-            dirVelocity[i] -= .2; //decrease speed
+            dirVelocity[i] -= getAcceleration()/5; //decrease speed
         else
             dirVelocity[i] += getAcceleration(); //increase speed
     }

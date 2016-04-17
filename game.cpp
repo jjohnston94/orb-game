@@ -18,7 +18,8 @@ Game::Game()
     SCENE_WIDTH = 3000;
     SCENE_HEIGHT = 20000;
 
-    // Initialize the scene, which holds QGraphicsItems
+    // Initialize the scene, which holds QGraphicsItemsf
+
     scene = new QGraphicsScene();
     scene->setSceneRect(0,0, SCENE_WIDTH, SCENE_HEIGHT);
 
@@ -73,13 +74,15 @@ void Game::spawnAI()
     {
         if (player->y() > 0 && player->y() < SCENE_HEIGHT-WINDOW_HEIGHT)
         {
-            AIOrb* newAI = new AIOrb(10 + qrand()%(int)player->getRadius()-10, qrand() % SCENE_WIDTH, (qrand() % 1000) + (player->y()+WINDOW_HEIGHT));
+            qreal Y = (qrand() % 1500) + (player->y()+WINDOW_HEIGHT);
+            AIOrb* newAI = new AIOrb(Y, qrand() % SCENE_WIDTH, Y);
             aiList->append(newAI);
             scene->addItem(newAI);
         }
-        if (player->y() < SCENE_HEIGHT && player->y() > WINDOW_HEIGHT && false)
+        if (player->y() < SCENE_HEIGHT && player->y() > WINDOW_HEIGHT)
         {
-            AIOrb* newAI2 = new AIOrb(10 + qrand()%(int)player->getRadius()-20, qrand() % SCENE_WIDTH, (player->y()-WINDOW_HEIGHT) - (qrand() % 1000));
+            qreal y =  (player->y()-WINDOW_HEIGHT) - (qrand() % 1500);
+            AIOrb* newAI2 = new AIOrb(Y, qrand() % SCENE_WIDTH, y);
             aiList->append(newAI2);
             scene->addItem(newAI2);
         }

@@ -7,5 +7,11 @@
         <file>resources/pinkFood.png</file>
         <file>resources/yellowFood.png</file>
         <file>resources/bg.png</file>
+        <file>resources/orangeChasing.png</file>
+        <file>resources/orangeRunning.png</file>
+        <file>resources/oreoChasing.png</file>
+        <file>resources/oreoRunning.png</file>
+        <file>resources/purpleMaskChasing.png</file>
+        <file>resources/purpleMaskRunning.png</file>
     </qresource>
 </RCC>

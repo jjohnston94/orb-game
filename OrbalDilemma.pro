@@ -17,14 +17,16 @@ SOURCES += main.cpp \
     playerorb.cpp \
     aiorb.cpp \
     game.cpp \
-    feederOrb.cpp
+    feederOrb.cpp \
+    startscreen.cpp
 
 HEADERS  += \
     orb.h \
     playerorb.h \
     aiorb.h \
     game.h \
-    feederOrb.h
+    feederOrb.h \
+    startscreen.h
 
 RESOURCES += \
     res.qrc

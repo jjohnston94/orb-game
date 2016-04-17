@@ -18,7 +18,7 @@ PlayerOrb::PlayerOrb()
     imageSource = ":/images/resources/orbPlaceholder.png";
     setRadius(40);
     actualRadius = radius;
-    setPos(800, 1900);
+    setPos(1500, 500);
     setAcceleration(2);
     setMaxVelocity(20);
 

@@ -19,7 +19,9 @@ AIOrb::AIOrb()
 
 AIOrb::AIOrb(qreal radius, int x, int y)
 {
-    imageSource = ":/images/resources/red.png";
+    QString sourceTypes[3] = {"orange", "purpleMask", "oreo"};
+    baseImgName = sourceTypes[qrand() % 3];
+    imageSource = ":/images/resources/" + baseImgName + "Running.png";
     setRadius(radius); // set the pixmap image and then scale it to the radius
     actualRadius = radius;
     setAcceleration(.5);
@@ -47,6 +49,7 @@ void AIOrb::growBy(qreal amount)
 
 void AIOrb::shrinkBy(qreal amount)
 {
+
     for (int j=0; j<5; j++)
         growQueue.push(-amount/5);
 }
@@ -79,10 +82,16 @@ void AIOrb::move()
                 angle = TwoPi - angle;
             qreal orbEffect = range - distance; //The value for the effect that the current orb will have on this orb
             if (orbEffect < 0) orbEffect = 0;
-            if (radius <= current->getRadius()){ //This orb is smaller than the current orb, run away.
+
+            //This orb is smaller than the current orb, run away.
+            if (radius <= current->getRadius())
+            {
                 xVMag -= cos(angle)*(orbEffect);
                 yVMag += sin(angle)*(orbEffect);
-            } else if (radius > current ->getRadius()){ //This orb is larger, chase.
+            }
+            //This orb is larger, chase.
+            else if (radius > current ->getRadius())
+            {
                 xVMag += cos(angle)*(orbEffect);
                 yVMag -= sin(angle)*(orbEffect);
             }
@@ -115,5 +124,4 @@ void AIOrb::move()
         setPos(x(), 0);
     else if (y() + 2*radius > scene()->height())
         setPos(x(), scene()->height() - 2*radius);
-
 }

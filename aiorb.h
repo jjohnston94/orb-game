@@ -3,6 +3,7 @@
 
 #include <queue>
 #include "orb.h"
+#include <QString>
 
 class AIOrb : public Orb
 {
@@ -16,6 +17,7 @@ public:
 private:
     bool aiOn;
     std::queue<qreal> growQueue;
+    QString baseImgName;
 };
 
 #endif // AIORB_H

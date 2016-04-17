@@ -12,5 +12,14 @@
         <file>resources/oreoRunning.png</file>
         <file>resources/purpleMaskChasing.png</file>
         <file>resources/purpleMaskRunning.png</file>
+        <file>resources/mc1.png</file>
+        <file>resources/mc2.png</file>
+        <file>resources/mc3.png</file>
+        <file>resources/mc4.png</file>
+        <file>resources/mc5.png</file>
+        <file>resources/mc6.png</file>
+        <file>resources/orangeNeutral.png</file>
+        <file>resources/oreoNeutral.png</file>
+        <file>resources/purpleMaskNeutral.png</file>
     </qresource>
 </RCC>

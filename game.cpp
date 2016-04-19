@@ -109,6 +109,7 @@ void Game::deleteAI(Orb * orb)
     delete orb;
 }
 
+// Loop called every 20 ms
 void Game::gameLoop()
 {
     player->move();
@@ -273,6 +274,9 @@ void Game::collidePlayer()
             // Remove the item from the scene and aiList and delete it
             deleteAI(current);
 
+            // Add one to orbs eaten
+            orbsEaten++;
+
             // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
             if (player->getRadius() < 300)
             {
@@ -302,6 +306,9 @@ void Game::collidePlayer()
             player->setPos(1500,(scale - 1)*4000 + 2000);
             player->setRadius(40);
             player->setActualRadius(40*pow(2,scale - 1));
+
+            // Add one to deaths
+            deaths++;
         }
 
         // If the player is bigger than the other feeder orb
@@ -364,7 +371,7 @@ void Game::win()
 
     // Credits HTML/text
     QGraphicsTextItem * credits = new QGraphicsTextItem();
-    credits->setPos(WINDOW_WIDTH/5,WINDOW_HEIGHT/8);
+    credits->setPos(WINDOW_WIDTH/5, WINDOW_HEIGHT/8);
     credits->setTextWidth(3*WINDOW_WIDTH/5);
     credits->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:72px;\"><strong>YOU WIN!!!!</strong></span></span></p>"
             "<p>&nbsp;</p>"
@@ -385,4 +392,11 @@ void Game::win()
     scene->addItem(credits);
 
     // Statistic counters
+    /*
+    QGraphicsTextItem * counters = new QGraphicsTextItem();
+    counters->setPos(3*WINDOW_WIDTH/5, WINDOW_HEIGHT/8);
+    credits->setTextWidth(2*WINDOW_WIDTH/5);
+    credits->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Orbs Eaten:</span></span></p>"
+            "<p><span style=\"font-size:48px;\"><span style=\"font-family:georgia,serif;\">Deaths:</span></span></p>");
+    */
 }

@@ -18,7 +18,8 @@ SOURCES += main.cpp \
     aiorb.cpp \
     game.cpp \
     feederOrb.cpp \
-    startscreen.cpp
+    startscreen.cpp \
+    button.cpp
 
 HEADERS  += \
     orb.h \
@@ -26,7 +27,8 @@ HEADERS  += \
     aiorb.h \
     game.h \
     feederOrb.h \
-    startscreen.h
+    startscreen.h \
+    button.h
 
 RESOURCES += \
     res.qrc

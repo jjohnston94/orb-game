@@ -33,12 +33,19 @@ private:
     int SCENE_HEIGHT;
     int scale;
     int lastScale;
+    bool won;
+
+    int orbsEaten;
+    int deaths;
 
     void deleteAI(Orb * orb);
     void changeScale();
     void spawnAI();
     void moveCollideOrbs();
+    void collidePlayer();
     void spawnFeeders();
+    void cullBadOrbs();
+    void win();
 };
 
 #endif // GAME_H

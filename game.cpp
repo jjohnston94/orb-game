@@ -141,7 +141,19 @@ void Game::gameLoop()
         //If the player is smaller than the other (AI)
         else if (pRadius < aiRadius && typeid(*(current)) == typeid(AIOrb))
         {
-
+             for (int j = 0; j < aiList->size();)
+             {
+                 deleteAI(aiList->at(j));
+             }
+             scale -= 1;
+             if (scale < 1)
+             {
+                 scale = 1;
+             }
+             lastScale = scale;
+             player->setPos(1500,(scale - 1)*4000 + 2000);
+             player->setRadius(40);
+             player->setActualRadius(40*pow(2,scale - 1));
         }
 
         // If the player is bigger than the other feeder orb
@@ -201,7 +213,7 @@ void Game::changeScale()
 {
     if (scale < lastScale)
     {
-        player->growBy( qAbs((player->getActualRadius() / pow(2,scale - 1) ) - player->getRadius()));
+        player->growBy(player->getActualRadius() / pow(2,scale));
 
         for (int i = 0; i < aiList->size(); i++)
         {
@@ -211,7 +223,7 @@ void Game::changeScale()
     }
     else
     {
-        player->shrinkBy( qAbs((player->getActualRadius() / pow(2, scale - 1) ) - player->getRadius()));
+        player->shrinkBy(player->getActualRadius() / pow(2, scale - 1));
 
         for (int i = 0; i < aiList->size(); i++)
         {

@@ -15,7 +15,7 @@ PlayerOrb::PlayerOrb()
 {
     // these should probably be paramaterized at some point
 
-    imageSource = ":/images/resources/orbPlaceholder.png";
+    imageSource = ":/images/resources/mc1.png";
     setRadius(40);
     actualRadius = radius;
     setPos(1500, 500);
@@ -84,6 +84,23 @@ void PlayerOrb::shrinkBy(qreal amount)
 {
     for (int j=0; j<5; j++)
         growQueue.push(-amount/5);
+}
+
+void PlayerOrb::correctImage()
+{
+    qreal inc = 900/6;
+    if (actualRadius > inc*5)
+        imageSource = ":/images/resources/mc6.png";
+    else if (actualRadius > inc*4)
+        imageSource = ":/images/resources/mc5.png";
+    else if (actualRadius > inc*3)
+        imageSource = ":/images/resources/mc4.png";
+    else if (actualRadius > inc*2)
+        imageSource = ":/images/resources/mc3.png";
+    else if (actualRadius > inc)
+        imageSource = ":/images/resources/mc2.png";
+    else
+        imageSource = ":/images/resources/mc1.png";
 }
 
 void PlayerOrb::move()

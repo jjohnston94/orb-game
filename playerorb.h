@@ -12,6 +12,7 @@ public:
     void move();
     void growBy(qreal amount);
     void shrinkBy(qreal amount);
+    void correctImage();
 private:
     bool keyDirection[4]; // 0L 1R 2U 3D
     qreal b;

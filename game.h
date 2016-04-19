@@ -8,6 +8,9 @@
 #include <QGraphicsView>
 #include <QList>
 #include <QObject>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
+
 
 class Game : public QObject
 {
@@ -46,6 +49,8 @@ private:
     void spawnFeeders();
     void cullBadOrbs();
     void win();
+    QMediaPlaylist * playlist;
+    QMediaPlayer * music;
 };
 
 #endif // GAME_H

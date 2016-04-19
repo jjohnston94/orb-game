@@ -8,6 +8,8 @@
 #include <typeinfo>
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 Game::Game()
 {
@@ -54,6 +56,20 @@ Game::Game()
     // Single timer that calls gameLoop which controls the movements of the other objects
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(gameLoop()));;
+
+
+
+    playlist = new QMediaPlaylist; //plays gameplay music
+    playlist->addMedia(QUrl("qrc:/music/Orbal_Dilemma.wav"));
+    music = new QMediaPlayer();
+    music->setPlaylist(playlist);
+    playlist->setCurrentIndex(1);
+    playlist->setPlaybackMode(QMediaPlaylist::Loop);
+    music->play();
+
+
+
+
 
 }
 
@@ -368,6 +384,7 @@ void Game::win()
 
     // Limit the screen size
     scene->setSceneRect(0,0, WINDOW_WIDTH-5, WINDOW_HEIGHT-5);
+
 
     // Credits HTML/text
     QGraphicsTextItem * credits = new QGraphicsTextItem();

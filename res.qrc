@@ -22,4 +22,7 @@
         <file>resources/oreoNeutral.png</file>
         <file>resources/purpleMaskNeutral.png</file>
     </qresource>
+    <qresource prefix="/music">
+        <file>Orbal_Dilemma.wav</file>
+    </qresource>
 </RCC>

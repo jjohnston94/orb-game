@@ -15,6 +15,7 @@ class Game : public QObject
 public:
     Game();
     void show();
+    int getScale();
     int WINDOW_WIDTH;
     int WINDOW_HEIGHT;
 public slots:

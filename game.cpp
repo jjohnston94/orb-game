@@ -69,22 +69,34 @@ void Game::show()
 // Spawn the AI (currently only below the player)
 void Game::spawnAI()
 {
-    int max = 50;
+    int max = 25;
     if (aiList->size() < max)
     {
+        //Spawn Orbs Below
         if (player->y() > 0 && player->y() < SCENE_HEIGHT-WINDOW_HEIGHT)
         {
-            qreal Y = (qrand() % 1500) + (player->y()+WINDOW_HEIGHT);
-            AIOrb* newAI = new AIOrb(Y, qrand() % SCENE_WIDTH, Y);
+            qreal y = (qrand() % 1500) + (player->y()+WINDOW_HEIGHT);
+            //qreal yR = y/20 + ((qrand() % 200) - 150);
+            qreal yR = qrand() % 100 + 100*(int)(y / 4000);
+            if (yR < 20) yR = 20 + qrand() % 20;
+            //std::cout << "pY: " << player->y() << "\t";
+            AIOrb* newAI = new AIOrb(yR, qrand() % SCENE_WIDTH, y);
             aiList->append(newAI);
             scene->addItem(newAI);
         }
-        if (player->y() < SCENE_HEIGHT && player->y() > WINDOW_HEIGHT)
+        //Spawn Orbs Above
+        if (player->y() < SCENE_HEIGHT && player->y() > WINDOW_HEIGHT + 500)
         {
-            qreal y =  (player->y()-WINDOW_HEIGHT) - (qrand() % 1500);
-            AIOrb* newAI2 = new AIOrb(Y, qrand() % SCENE_WIDTH, y);
-            aiList->append(newAI2);
-            scene->addItem(newAI2);
+            qreal y = (player->y()-WINDOW_HEIGHT) - (qrand() % 1500);
+            if (y > 500) {
+                //qreal yR = y/20 + ((qrand() % 200) - 150);
+                qreal yR = qrand() % 100 + 100*(int)(y / 4000);
+                if (yR < 20) yR = 20 + qrand() % 20;
+                //std::cout << "py: " << player->y() << "\t";
+                AIOrb* newAI2 = new AIOrb(yR, qrand() % SCENE_WIDTH, y);
+                aiList->append(newAI2);
+                scene->addItem(newAI2);
+            }
         }
     }
 }
@@ -185,27 +197,33 @@ void Game::gameLoop()
 // Changes the size of the player and all AI based on scale
 void Game::changeScale()
 {
+    std::cout << "Old Radius: " << player->getRadius();
     if (scale < lastScale)
     {
-        player->growBy( qAbs((player->getActualRadius() / scale ) - player->getRadius()));
+        player->growBy( qAbs((player->getActualRadius() / pow(2,scale - 1) ) - player->getRadius()));
 
         for (int i = 0; i < aiList->size(); i++)
         {
             AIOrb * current = aiList->at(i);
-            current->growBy( qAbs((current->getActualRadius() / scale) - current->getRadius()));
+            current->growBy(current->getRadius());
         }
     }
     else
     {
-        player->shrinkBy( qAbs((player->getActualRadius() / scale ) - player->getRadius()));
+        player->shrinkBy( qAbs((player->getActualRadius() / pow(2, scale - 1) ) - player->getRadius()));
 
         for (int i = 0; i < aiList->size(); i++)
         {
             AIOrb * current = aiList->at(i);
-            current->shrinkBy( qAbs((current->getActualRadius() / scale) - current->getRadius()));
+            current->shrinkBy(current->getRadius()/2);
         }
     }
+    std::cout << "\tNew Radius" << qAbs((player->getActualRadius() / pow(2,scale - 1) ) - player->getRadius()) << std::endl;
+}
 
+// Returns the value of scale
+int Game::getScale(){
+    return scale;
 }
 
 void Game::moveCollideOrbs()
@@ -286,4 +304,3 @@ void Game::spawnFeeders()
         scene->addItem(newFeeder);
     }
 }
-

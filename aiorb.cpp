@@ -22,7 +22,8 @@ AIOrb::AIOrb(qreal radius, int x, int y)
     QString sourceTypes[3] = {"orange", "purpleMask", "oreo"};
     baseImgName = sourceTypes[qrand() % 3];
     imageSource = ":/images/resources/" + baseImgName + "Running.png";
-    setRadius(radius); // set the pixmap image and then scale it to the radius
+    int thisScale = (y / 4000) + 1;
+    setRadius((radius - 100*(thisScale - 1))/pow(2,(game->getScale() - thisScale))); // set the pixmap image and then scale it to the radius
     actualRadius = radius;
     setAcceleration(.5);
     setMaxVelocity(5);

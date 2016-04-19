@@ -76,10 +76,8 @@ void Game::spawnAI()
         if (player->y() > 0 && player->y() < SCENE_HEIGHT-WINDOW_HEIGHT)
         {
             qreal y = (qrand() % 1500) + (player->y()+WINDOW_HEIGHT);
-            //qreal yR = y/20 + ((qrand() % 200) - 150);
             qreal yR = qrand() % 100 + 100*(int)(y / 4000);
             if (yR < 20) yR = 20 + qrand() % 20;
-            //std::cout << "pY: " << player->y() << "\t";
             AIOrb* newAI = new AIOrb(yR, qrand() % SCENE_WIDTH, y);
             aiList->append(newAI);
             scene->addItem(newAI);
@@ -89,10 +87,8 @@ void Game::spawnAI()
         {
             qreal y = (player->y()-WINDOW_HEIGHT) - (qrand() % 1500);
             if (y > 500) {
-                //qreal yR = y/20 + ((qrand() % 200) - 150);
                 qreal yR = qrand() % 100 + 100*(int)(y / 4000);
                 if (yR < 20) yR = 20 + qrand() % 20;
-                //std::cout << "py: " << player->y() << "\t";
                 AIOrb* newAI2 = new AIOrb(yR, qrand() % SCENE_WIDTH, y);
                 aiList->append(newAI2);
                 scene->addItem(newAI2);
@@ -128,7 +124,7 @@ void Game::gameLoop()
         qreal pRadius = player->getRadius();
 
         // If the player is bigger than the other (AI)
-        if (pRadius > aiRadius && typeid(*(current)) == typeid(AIOrb))
+        if (pRadius >= aiRadius && typeid(*(current)) == typeid(AIOrb))
         {
             // Remove the item from the scene and aiList and delete it
             deleteAI(current);
@@ -142,8 +138,14 @@ void Game::gameLoop()
             }
         }
 
+        //If the player is smaller than the other (AI)
+        else if (pRadius < aiRadius && typeid(*(current)) == typeid(AIOrb))
+        {
+
+        }
+
         // If the player is bigger than the other feeder orb
-        else if (pRadius > aiRadius && typeid(*(current)) == typeid(FeederOrb))
+        else if (pRadius >= aiRadius && typeid(*(current)) == typeid(FeederOrb))
         {
             deleteAI(current);
 
@@ -197,7 +199,6 @@ void Game::gameLoop()
 // Changes the size of the player and all AI based on scale
 void Game::changeScale()
 {
-    std::cout << "Old Radius: " << player->getRadius();
     if (scale < lastScale)
     {
         player->growBy( qAbs((player->getActualRadius() / pow(2,scale - 1) ) - player->getRadius()));
@@ -218,7 +219,6 @@ void Game::changeScale()
             current->shrinkBy(current->getRadius()/2);
         }
     }
-    std::cout << "\tNew Radius" << qAbs((player->getActualRadius() / pow(2,scale - 1) ) - player->getRadius()) << std::endl;
 }
 
 // Returns the value of scale

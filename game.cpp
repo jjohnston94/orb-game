@@ -69,7 +69,7 @@ void Game::show()
 // Spawn the AI (currently only below the player)
 void Game::spawnAI()
 {
-    int max = 25;
+    int max = 50;
     if (aiList->size() < max)
     {
         //Spawn Orbs Below
@@ -93,6 +93,22 @@ void Game::spawnAI()
                 aiList->append(newAI2);
                 scene->addItem(newAI2);
             }
+        }
+    }
+}
+
+//Get rid of AI orbs that are too high or low
+void Game::cullBadOrbs()
+{
+    for (int i = 0; i < aiList->size(); i++)
+    {
+        if (aiList->at(i)->y() > player->y() + 2000)
+        {
+            deleteAI(aiList->at(i));
+        }
+        else if (aiList->at(i)->y() < player->y() - 2000)
+        {
+            deleteAI(aiList->at(i));
         }
     }
 }
@@ -176,6 +192,9 @@ void Game::gameLoop()
 
     // Center the view on the player so that it follows the player around
     view->centerOn(player);
+
+    //Kill AI orbs that are too far away
+    cullBadOrbs();
 
     // Spawn AIOrbs if applicable
     spawnAI();

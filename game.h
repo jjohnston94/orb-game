@@ -36,6 +36,7 @@ private:
 
     void deleteAI(Orb * orb);
     void changeScale();
+    void cullBadOrbs();
     void spawnAI();
     void moveCollideOrbs();
     void spawnFeeders();

@@ -6,6 +6,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <typeinfo>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
 
 Game::Game()
 {
@@ -45,13 +47,9 @@ Game::Game()
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setFixedSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 
-    //  A nice gradient background
-    QRadialGradient gradient(QPointF(SCENE_WIDTH/2, SCENE_HEIGHT/2), 75);
-    gradient.setColorAt(0,Qt::blue);
-    gradient.setColorAt(1,Qt::black);
-    gradient.setSpread(QGradient::ReflectSpread);
-    scene->setBackgroundBrush(gradient);
-    //scene->setBackgroundBrush(QPixmap(":/images/resources/bg.png"));
+    // Set the background images (which are dependent on your own directory in which they are saved)
+    scene->setBackgroundBrush(QPixmap("C:/Users/Luke/Documents/QtProjects/OrbalDilemma/resources/BG1.png"));
+    scene->setForegroundBrush(QPixmap("C:/Users/Luke/Documents/QtProjects/OrbalDilemma/resources/BG.png"));
 
     // Single timer that calls gameLoop which controls the movements of the other objects
     timer = new QTimer();
@@ -62,11 +60,12 @@ Game::Game()
 void Game::show()
 {
     view->showFullScreen();
+
     // Timer called every 20 milliseconds
     timer->start(20);
 }
 
-// Spawn the AI (currently only below the player)
+// Spawn the AI
 void Game::spawnAI()
 {
     int max = 25;
@@ -82,11 +81,13 @@ void Game::spawnAI()
             aiList->append(newAI);
             scene->addItem(newAI);
         }
+
         //Spawn Orbs Above
         if (player->y() < SCENE_HEIGHT && player->y() > WINDOW_HEIGHT + 500)
         {
             qreal y = (player->y()-WINDOW_HEIGHT) - (qrand() % 1500);
-            if (y > 500) {
+            if (y > 500)
+            {
                 qreal yR = qrand() % 100 + 100*(int)(y / 4000);
                 if (yR < 20) yR = 20 + qrand() % 20;
                 AIOrb* newAI2 = new AIOrb(yR, qrand() % SCENE_WIDTH, y);
@@ -112,52 +113,11 @@ void Game::gameLoop()
 {
     player->move();
 
-    // Check collisions with the player
-    QList<QGraphicsItem *> collisions = player->collidingItems();
+    // Check player collisions
+    collidePlayer();
 
-    // For every item the player is colliding with
-    for (int i = 0; i < collisions.size(); i++)
-    {
-        // Cast the item as an Orb
-        Orb * current = (Orb*)collisions[i]; // cast the colliding objects as Orb references so their member functions can be accessed
-        qreal aiRadius = current->getRadius();
-        qreal pRadius = player->getRadius();
-
-        // If the player is bigger than the other (AI)
-        if (pRadius >= aiRadius && typeid(*(current)) == typeid(AIOrb))
-        {
-            // Remove the item from the scene and aiList and delete it
-            deleteAI(current);
-
-            // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
-            if (player->getRadius() < 300)
-            {
-                qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
-                player->setActualRadius(player->getActualRadius() + radiusDiff);
-                player->growBy(radiusDiff);
-            }
-        }
-
-        //If the player is smaller than the other (AI)
-        else if (pRadius < aiRadius && typeid(*(current)) == typeid(AIOrb))
-        {
-
-        }
-
-        // If the player is bigger than the other feeder orb
-        else if (pRadius >= aiRadius && typeid(*(current)) == typeid(FeederOrb))
-        {
-            deleteAI(current);
-
-            // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
-            if (player->getRadius() < 75)
-            {
-                qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
-                player->setActualRadius(player->getActualRadius() + radiusDiff);
-                player->growBy(radiusDiff);
-            }
-        }
-    }
+    // Display the correct image for the player
+    player->correctImage();
 
     // Re-set the focus to the player to make sure it can still move
     player->setFocus();
@@ -165,35 +125,43 @@ void Game::gameLoop()
     // Center the view on the player so that it follows the player around
     view->centerOn(player);
 
-    // Spawn AIOrbs if applicable
-    spawnAI();
-
-    // Spawn feeders
-    spawnFeeders();
-
-    // Move AI if in view and check their collisions
-    moveCollideOrbs();
-
-    // Make sure all of the AI grow/shrink regardless of whether they are in the view
-    for (int i = 0; i < aiList->size(); i++)
-        aiList->at(i)->grow();
-
-    // If an AI gets too small, delete it
-    for (int i = 0; i < aiList->size(); i++)
+    if (!won)
     {
-        if (aiList->at(i)->getRadius() < 10)
-            deleteAI(aiList->at(i));
+        // Spawn AIOrbs if applicable
+        spawnAI();
+
+        // Spawn feeders
+        spawnFeeders();
+
+        // Move AI if in view and check their collisions
+        moveCollideOrbs();
+
+        // Make sure all of the AI grow/shrink regardless of whether they are in the view
+        for (int i = 0; i < aiList->size(); i++)
+            aiList->at(i)->grow();
+
+        // If an AI gets too small, delete it
+        for (int i = 0; i < aiList->size(); i++)
+        {
+            if (aiList->at(i)->getRadius() < 10)
+                deleteAI(aiList->at(i));
+        }
+
+        // Make the scale of everything change at height intervals
+        int divisor = SCENE_HEIGHT / 5;
+        if (lastScale != scale)
+        {
+            changeScale();
+            lastScale = scale;
+        }
+        scale = ((int) (player->y()/divisor)) + 1;
     }
 
-    // Make the scale of everything change at height intervals
-    int divisor = SCENE_HEIGHT / 5;
-    if (lastScale != scale)
+    if (player->y() >= SCENE_HEIGHT - player->getRadius()*2)
     {
-        changeScale();
-        lastScale = scale;
+        won = true;
+        win();
     }
-    scale = ((int) (player->y()/divisor)) + 1;
-
 }
 
 // Changes the size of the player and all AI based on scale
@@ -201,7 +169,7 @@ void Game::changeScale()
 {
     if (scale < lastScale)
     {
-        player->growBy( qAbs((player->getActualRadius() / pow(2,scale - 1) ) - player->getRadius()));
+        player->growBy( (player->getActualRadius() / pow(2, scale) ));
 
         for (int i = 0; i < aiList->size(); i++)
         {
@@ -211,7 +179,7 @@ void Game::changeScale()
     }
     else
     {
-        player->shrinkBy( qAbs((player->getActualRadius() / pow(2, scale - 1) ) - player->getRadius()));
+        player->shrinkBy( (player->getActualRadius() / pow(2, scale-1)));
 
         for (int i = 0; i < aiList->size(); i++)
         {
@@ -222,7 +190,8 @@ void Game::changeScale()
 }
 
 // Returns the value of scale
-int Game::getScale(){
+int Game::getScale()
+{
     return scale;
 }
 
@@ -272,15 +241,6 @@ void Game::moveCollideOrbs()
 
                 }
 
-                // If the current AIOrb is bigger than the player
-                else if (thisRadius > oradius && typeid(*(collided)) == typeid(PlayerOrb))
-                {/*
-                    if (player->getRadius() > 15)
-                    {
-                        player->shrinkBy(1);
-                        player->setActualRadius(player->getActualRadius()-1);
-                    }*/
-                }
             }
         }
 
@@ -294,6 +254,72 @@ void Game::moveCollideOrbs()
     }
 }
 
+void Game::collidePlayer()
+{
+    // Check collisions with the player
+    QList<QGraphicsItem *> collisions = player->collidingItems();
+
+    // For every item the player is colliding with
+    for (int i = 0; i < collisions.size(); i++)
+    {
+        // Cast the item as an Orb
+        Orb * current = (Orb*)collisions[i]; // cast the colliding objects as Orb references so their member functions can be accessed
+        qreal aiRadius = current->getRadius();
+        qreal pRadius = player->getRadius();
+
+        // If the player is bigger than the other (AI)
+        if (pRadius >= aiRadius && typeid(*(current)) == typeid(AIOrb))
+        {
+            // Remove the item from the scene and aiList and delete it
+            deleteAI(current);
+
+            // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
+            if (player->getRadius() < 300)
+            {
+                qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
+                player->setActualRadius(player->getActualRadius() + radiusDiff);
+                player->growBy(radiusDiff);
+            }
+        }
+
+        //If the player is smaller than the other (gets eaten)
+        else if (pRadius < aiRadius && typeid(*(current)) == typeid(AIOrb))
+        {
+            // Delete all the AI
+            for (int j = 0; j < aiList->size();)
+            {
+                deleteAI(aiList->at(j));
+            }
+
+            scale -= 1;
+            if (scale < 1)
+            {
+                scale = 1;
+            }
+
+            // Set the player to a base size and move them up a level
+            lastScale = scale;
+            player->setPos(1500,(scale - 1)*4000 + 2000);
+            player->setRadius(40);
+            player->setActualRadius(40*pow(2,scale - 1));
+        }
+
+        // If the player is bigger than the other feeder orb
+        else if (pRadius >= aiRadius && typeid(*(current)) == typeid(FeederOrb))
+        {
+            deleteAI(current);
+
+            // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
+            if (player->getRadius() < 75)
+            {
+                qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
+                player->setActualRadius(player->getActualRadius() + radiusDiff);
+                player->growBy(radiusDiff);
+            }
+        }
+    }
+}
+
 void Game::spawnFeeders()
 {
     int max = 25;
@@ -303,4 +329,60 @@ void Game::spawnFeeders()
         feederList->append(newFeeder);
         scene->addItem(newFeeder);
     }
+}
+
+// Get rid of AI orbs that are too high or low
+void Game::cullBadOrbs()
+{
+    for (int i = 0; i < aiList->size(); i++)
+    {
+        if (aiList->at(i)->y() > player->y() + 2000)
+        {
+            deleteAI(aiList->at(i));
+        }
+        else if (aiList->at(i)->y() < player->y() - 2000)
+        {
+            deleteAI(aiList->at(i));
+        }
+    }
+}
+
+// If the player reachs the bottom
+void Game::win()
+{
+    // Delete all the AI
+    for (int i = 0; i < aiList->size();)
+        deleteAI(aiList->at(i));
+    delete aiList;
+
+    for (int i = 0; i < feederList->size();)
+        deleteAI(feederList->at(i));
+    delete feederList;
+
+    // Limit the screen size
+    scene->setSceneRect(0,0, WINDOW_WIDTH-5, WINDOW_HEIGHT-5);
+
+    // Credits HTML/text
+    QGraphicsTextItem * credits = new QGraphicsTextItem();
+    credits->setPos(WINDOW_WIDTH/5,WINDOW_HEIGHT/8);
+    credits->setTextWidth(3*WINDOW_WIDTH/5);
+    credits->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:72px;\"><strong>YOU WIN!!!!</strong></span></span></p>"
+            "<p>&nbsp;</p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Programmed by:</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Timon Angerhofer</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Luke Bickell</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jeremy Johnston</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jon Kyle</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Rebecca Wedow</span></span></p>"
+            "<p>&nbsp;</p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Music by:</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jon Kyle</span></span></p>"
+            "<p>&nbsp;</p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Art by:</span></span></p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Rebecca Wedow</span></span></p>"
+            "<p>&nbsp;</p>"
+            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Thanks for playing!!</span></span></p>");
+    scene->addItem(credits);
+
+    // Statistic counters
 }

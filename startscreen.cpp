@@ -1,7 +1,6 @@
 
 #include <QtWidgets>
 
-#include "button.h"
 #include "startscreen.h"
 #include "game.h"
 #include <QString>

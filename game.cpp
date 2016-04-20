@@ -6,8 +6,22 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <typeinfo>
-#include <QPropertyAnimation>
-#include <QGraphicsOpacityEffect>
+
+/*
+ * Game.cpp is the class that implements the orb classes and controls game variables
+ * and the game loop. It uses QGraphicsScene and QGraphicsView to hold the orb Items
+ * and display them to the user. A single QTimer controls the gameloop, which calls
+ * all the necessary methods such as move(), grow(), etc. which are necessary for
+ * the movement and composition of the scene. The player size grows/shrinks depending
+ * on how low/high they are to prevent the player from getting to large when they go down
+ * and eat bigger orbs. The player is also prevented from moving too high or low if they are
+ * not the right size.
+ *
+ * The win screen is also handled once the player has won. This is the most important class!
+ * It is called from the main.cpp and started from the user pressing the "play" button on the start
+ * screen.
+ *
+ */
 
 Game::Game()
 {
@@ -320,6 +334,7 @@ void Game::collidePlayer()
         // If the player is bigger than the other feeder orb
         else if (pRadius >= aiRadius && typeid(*(current)) == typeid(FeederOrb))
         {
+            // Delete the feeder orb
             deleteAI(current);
 
             // Add the area of the eaten orb to the player but don't let the player grow bigger than 300 from eating
@@ -333,14 +348,22 @@ void Game::collidePlayer()
     }
 }
 
+// Spawn the feeder orbs
 void Game::spawnFeeders()
 {
+    // Max of 25 feeder orbs on screen at a time
     int max = 25;
     int heightRange;
+
+    // Still spawn feeder orbs after having won, but in the whole screen
     if (won)
+    {
         heightRange = SCENE_HEIGHT;
+    }
     else
+    {
         heightRange = 500;
+    }
 
     if (feederList->size() < max)
     {
@@ -355,10 +378,12 @@ void Game::cullBadOrbs()
 {
     for (int i = 0; i < aiList->size(); i++)
     {
+        // If a AI is too far above the player, delete it
         if (aiList->at(i)->y() > player->y() + 2000)
         {
             deleteAI(aiList->at(i));
         }
+        // Or too low below the player
         else if (aiList->at(i)->y() < player->y() - 2000)
         {
             deleteAI(aiList->at(i));
@@ -374,6 +399,7 @@ void Game::win()
         deleteAI(aiList->at(i));
     delete aiList;
 
+    // Delete all the feeder orbs
     for (int i = 0; i < feederList->size();)
         deleteAI(feederList->at(i));
 
@@ -408,9 +434,11 @@ void Game::win()
     QGraphicsTextItem * counters = new QGraphicsTextItem();
     counters->setPos(3*WINDOW_WIDTH/5, WINDOW_HEIGHT/8);
     counters->setTextWidth(2*WINDOW_WIDTH/5);
-    counters->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Orbs Eaten: " + QString::number(orbsEaten) +
+    counters->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Orbs Eaten: " +
+                      QString::number(orbsEaten) +
                       "</span></span></p>"
-                      "<p><span style=\"font-size:48px;\"><span style=\"font-family:georgia,serif;\">Deaths: " + QString::number(deaths) +
+                      "<p><span style=\"font-size:48px;\"><span style=\"font-family:georgia,serif;\">Deaths: " +
+                      QString::number(deaths) +
                       "</span></span></p>");
     scene->addItem(counters);
 

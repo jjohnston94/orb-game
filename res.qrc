@@ -22,4 +22,5 @@
         <file>resources/oreoNeutral.png</file>
         <file>resources/purpleMaskNeutral.png</file>
     </qresource>
+    <qresource prefix="/music"/>
 </RCC>

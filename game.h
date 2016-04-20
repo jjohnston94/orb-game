@@ -51,6 +51,7 @@ private:
     void win();
     QMediaPlaylist * playlist;
     QMediaPlayer * music;
+
 };
 
 #endif // GAME_H

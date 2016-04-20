@@ -270,9 +270,10 @@ void Game::moveCollideOrbs()
         }
     }
 }
-
+QMediaPlayer * bloop = new QMediaPlayer();
 void Game::collidePlayer()
 {
+
     // Check collisions with the player
     QList<QGraphicsItem *> collisions = player->collidingItems();
 
@@ -287,6 +288,15 @@ void Game::collidePlayer()
         // If the player is bigger than the other (AI)
         if (pRadius >= aiRadius && typeid(*(current)) == typeid(AIOrb))
         {
+
+            bloop->setMedia(QUrl("qrc:/music/bloop.wav"));
+            // play sound
+            if(bloop->state() == QMediaPlayer::PlayingState){
+                bloop->setPosition(0);
+            }
+            else if(bloop->state() == QMediaPlayer::StoppedState){
+                bloop->play();
+            }
             // Remove the item from the scene and aiList and delete it
             deleteAI(current);
 

@@ -24,5 +24,6 @@
     </qresource>
     <qresource prefix="/music">
         <file>Orbal_Dilemma.wav</file>
+        <file>bloop.wav</file>
     </qresource>
 </RCC>

@@ -23,7 +23,7 @@ PlayerOrb::PlayerOrb()
     actualRadius = radius;
     setPos(1500, 1000);
     setAcceleration(2);
-    setMaxVelocity(20);
+    setMaxVelocity(10);
 
 }
 

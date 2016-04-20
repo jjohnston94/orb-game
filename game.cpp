@@ -8,6 +8,8 @@
 #include <typeinfo>
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 Game::Game()
 {
@@ -55,6 +57,21 @@ Game::Game()
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(gameLoop()));;
 
+    //Start Music
+
+    playlist = new QMediaPlaylist;
+    playlist->addMedia(QUrl("qrc:/music/resources/Orbal_Dilemma.wav"));
+    music = new QMediaPlayer();
+    music->setPlaylist(playlist);
+    playlist->setCurrentIndex(1);
+    playlist->setPlaybackMode(QMediaPlaylist::Loop);
+    music->play();
+
+    //Sound for when an orb is eaten
+    bloop = new QMediaPlayer();
+    bloop->setMedia(QUrl("qrc:/music/resources/bloop.wav"));
+
+    //Initialize won value to false
     won = false;
 
 }
@@ -245,6 +262,16 @@ void Game::moveCollideOrbs()
                         aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff/4);
                     }
 
+                    //Play a bloop
+                    if (bloop->state() == QMediaPlayer::PlayingState)
+                    {
+                        bloop->setPosition(0);
+                    }
+                    else if (bloop->state() == QMediaPlayer::StoppedState)
+                    {
+                        bloop->play();
+                    }
+
                 }
                 else if (thisRadius >= oradius && typeid(*(collided)) == typeid(FeederOrb))
                 {
@@ -257,6 +284,16 @@ void Game::moveCollideOrbs()
                         qreal radiusDiff = sqrt( (double) (thisRadius*thisRadius + oradius*oradius) ) - thisRadius;
                         aiOrb->growBy(radiusDiff/4);
                         aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff/4);
+                    }
+
+                    //Play a bloop
+                    if (bloop->state() == QMediaPlayer::PlayingState)
+                    {
+                        bloop->setPosition(0);
+                    }
+                    else if (bloop->state() == QMediaPlayer::StoppedState)
+                    {
+                        bloop->play();
                     }
                 }
             }
@@ -288,6 +325,7 @@ void Game::collidePlayer()
         // If the player is bigger than the other (AI)
         if (pRadius >= aiRadius && typeid(*(current)) == typeid(AIOrb))
         {
+
             // Remove the item from the scene and aiList and delete it
             deleteAI(current);
 
@@ -300,6 +338,16 @@ void Game::collidePlayer()
                 qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
                 player->setActualRadius(player->getActualRadius() + radiusDiff/4);
                 player->growBy(radiusDiff/4);
+            }
+
+            //Play a bloop
+            if (bloop->state() == QMediaPlayer::PlayingState)
+            {
+                bloop->setPosition(0);
+            }
+            else if (bloop->state() == QMediaPlayer::StoppedState)
+            {
+                bloop->play();
             }
         }
 
@@ -343,6 +391,16 @@ void Game::collidePlayer()
                 player->setActualRadius(player->getActualRadius() + radiusDiff);
                 player->growBy(radiusDiff);
             }
+
+            //Play a bloop
+            if (bloop->state() == QMediaPlayer::PlayingState)
+            {
+                bloop->setPosition(0);
+            }
+            else if (bloop->state() == QMediaPlayer::StoppedState)
+            {
+                bloop->play();
+            }
         }
     }
 }
@@ -352,9 +410,32 @@ void Game::spawnFeeders()
     int max = 25;
     if (feederList->size() < max)
     {
-        FeederOrb * newFeeder = new FeederOrb((qrand() % 15)+5, qrand() % 3000, qrand() % 500);
-        feederList->append(newFeeder);
-        scene->addItem(newFeeder);
+        //If the player can't see the range in which the feeder orbs are, spawn them
+        if (player->y() > 500 + WINDOW_HEIGHT/2 - player->getRadius() + 40)
+        {
+            FeederOrb * newFeeder = new FeederOrb((qrand() % 15)+5, qrand() % 3000, qrand() % 500);
+            feederList->append(newFeeder);
+            scene->addItem(newFeeder);
+        }
+        //The player can see the range, so spawn some orbs to the left and right where the player can't see,
+        //but don't spawn too many
+        else if (feederList->size() < max / 3)
+        {
+            //Prevent orbs from spawning on the screen with the player
+            if (player->x() > WINDOW_WIDTH/2 - player->getRadius() + 100)
+            {
+                FeederOrb * newFeeder = new FeederOrb((qrand() % 15)+5, qrand() % (int)(player->x() + player->getRadius() - WINDOW_WIDTH / 2 - 40), qrand() % 500);
+                feederList->append(newFeeder);
+                scene->addItem(newFeeder);
+            }
+            if (player->x() < 3000 - WINDOW_WIDTH/2 - player->getRadius() - 100)
+            {
+                int rightScreenBoundary = player->x() + player->getRadius() + WINDOW_WIDTH/2 + 40;
+                FeederOrb * newFeeder = new FeederOrb((qrand() % 15)+5, rightScreenBoundary + qrand() % (3000 - rightScreenBoundary), qrand() % 500);
+                feederList->append(newFeeder);
+                scene->addItem(newFeeder);
+            }
+        }
     }
 }
 
@@ -394,21 +475,21 @@ void Game::win()
     credits->setPos(WINDOW_WIDTH/5, WINDOW_HEIGHT/8);
     credits->setTextWidth(3*WINDOW_WIDTH/5);
     credits->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:72px;\"><strong>YOU WIN!!!!</strong></span></span></p>"
-            "<p>&nbsp;</p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Programmed by:</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Timon Angerhofer</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Luke Bickell</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jeremy Johnston</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jon Kyle</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Rebecca Wedow</span></span></p>"
-            "<p>&nbsp;</p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Music by:</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jon Kyle</span></span></p>"
-            "<p>&nbsp;</p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Art by:</span></span></p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Rebecca Wedow</span></span></p>"
-            "<p>&nbsp;</p>"
-            "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Thanks for playing!!</span></span></p>");
+                     "<p>&nbsp;</p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Programmed by:</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Timon Angerhofer</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Luke Bickell</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jeremy Johnston</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jon Kyle</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Rebecca Wedow</span></span></p>"
+                     "<p>&nbsp;</p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Music by:</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Jon Kyle</span></span></p>"
+                     "<p>&nbsp;</p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Art by:</span></span></p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:36px;\">Rebecca Wedow</span></span></p>"
+                     "<p>&nbsp;</p>"
+                     "<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Thanks for playing!!</span></span></p>");
     scene->addItem(credits);
 
     // Statistic counters

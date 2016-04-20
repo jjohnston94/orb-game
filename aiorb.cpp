@@ -75,29 +75,36 @@ void AIOrb::move()
 
         foreach(QGraphicsItem *item, closeOrb){
             Orb * current = (Orb*)item;
-            if (item == this)
-                continue;
-            QLineF lineToOrb(QPointF(radius, radius), mapFromItem(item, current->getRadius(),current->getRadius())); //The distance between the midpoints
-            qreal distance = lineToOrb.length() - current->getRadius() - radius; //The distance to the border of the orb
-            qreal angle = ::acos(lineToOrb.dx() / lineToOrb.length()); //The angle of the orb
-            if (lineToOrb.dy() > 0)
-                angle = TwoPi - angle;
-            qreal orbEffect = range - distance; //The value for the effect that the current orb will have on this orb
-            if (orbEffect < 0) orbEffect = 0;
-
-            //This orb is smaller than the current orb, run away.
-            if (radius <= current->getRadius())
+            if (typeid(*(current)) != typeid(FeederOrb))
             {
-                xVMag -= cos(angle)*(orbEffect);
-                yVMag += sin(angle)*(orbEffect);
-                chaseEffect -= orbEffect;
-            }
-            //This orb is larger, chase.
-            else if (radius > current->getRadius())
-            {
-                xVMag += cos(angle)*(orbEffect);
-                yVMag -= sin(angle)*(orbEffect);
-                chaseEffect += orbEffect;
+                if (item == this)
+                    continue;
+                QLineF lineToOrb(QPointF(radius, radius), mapFromItem(item, current->getRadius(),current->getRadius())); //The distance between the midpoints
+                qreal distance = lineToOrb.length() - current->getRadius() - radius; //The distance to the border of the orb
+                qreal angle = ::acos(lineToOrb.dx() / lineToOrb.length()); //The angle of the orb
+                if (lineToOrb.dy() > 0)
+                {
+                    angle = TwoPi - angle;
+                }
+                qreal orbEffect = range - distance; //The value for the effect that the current orb will have on this orb
+                if (orbEffect < 0)
+                {
+                    orbEffect = 0;
+                }
+                //This orb is smaller than the current orb, run away.
+                if (radius <= current->getRadius())
+                {
+                    xVMag -= cos(angle)*(orbEffect);
+                    yVMag += sin(angle)*(orbEffect);
+                    chaseEffect -= orbEffect;
+                }
+                //This orb is larger, chase.
+                else if (radius > current->getRadius())
+                {
+                    xVMag += cos(angle)*(orbEffect);
+                    yVMag -= sin(angle)*(orbEffect);
+                    chaseEffect += orbEffect;
+                }
             }
         }
 

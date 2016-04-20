@@ -10,6 +10,7 @@ public:
     void keyPressEvent(QKeyEvent * event);
     void keyReleaseEvent(QKeyEvent *event);
     void move();
+    void stop();
     void growBy(qreal amount);
     void shrinkBy(qreal amount);
     void correctImage();

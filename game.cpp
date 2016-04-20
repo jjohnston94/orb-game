@@ -48,12 +48,14 @@ Game::Game()
     view->setFixedSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 
     // Set the background images (which are dependent on your own directory in which they are saved)
-    scene->setBackgroundBrush(QPixmap("C:/Users/Luke/Documents/QtProjects/OrbalDilemma/resources/BG1.png"));
-    scene->setForegroundBrush(QPixmap("C:/Users/Luke/Documents/QtProjects/OrbalDilemma/resources/BG.png"));
+    scene->setBackgroundBrush(QPixmap("C:/COP3503 Project/orb-game-master_v7/orb-game-master/resources/BG1.png"));
+    scene->setForegroundBrush(QPixmap("C:/COP3503 Project/orb-game-master_v7/orb-game-master/resources/BG.png"));
 
     // Single timer that calls gameLoop which controls the movements of the other objects
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(gameLoop()));;
+
+    won = false;
 
 }
 
@@ -128,6 +130,8 @@ void Game::gameLoop()
 
     if (!won)
     {
+        cullBadOrbs();
+
         // Spawn AIOrbs if applicable
         spawnAI();
 
@@ -170,7 +174,8 @@ void Game::changeScale()
 {
     if (scale < lastScale)
     {
-        player->growBy( (player->getActualRadius() / pow(2, scale) ));
+        //player->growBy( (player->getActualRadius() / pow(2, scale) ));
+        player->growBy(player->getRadius());
 
         for (int i = 0; i < aiList->size(); i++)
         {
@@ -180,8 +185,8 @@ void Game::changeScale()
     }
     else
     {
-        player->shrinkBy( (player->getActualRadius() / pow(2, scale-1)));
-
+        //player->shrinkBy( (player->getActualRadius() / pow(2, scale-1)));
+        player->shrinkBy(player->getRadius()/2);
         for (int i = 0; i < aiList->size(); i++)
         {
             AIOrb * current = aiList->at(i);
@@ -236,12 +241,24 @@ void Game::moveCollideOrbs()
                     if (aiOrb->getRadius() < player->getRadius() + 20)
                     {
                         qreal radiusDiff = (sqrt((double) (thisRadius*thisRadius + oradius*oradius))) - thisRadius;
-                        aiOrb->growBy(radiusDiff);
-                        aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff);
+                        aiOrb->growBy(radiusDiff/4);
+                        aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff/4);
                     }
 
                 }
+                else if (thisRadius >= oradius && typeid(*(collided)) == typeid(FeederOrb))
+                {
+                    itemViewList.removeAt(itemViewList.indexOf(collisions[i]));
+                    deleteAI(collided);
 
+                    // Add the area of the eaten orb to the AI Orb but don't let the player grow bigger than 300 from eating
+                    if (thisRadius < 75)
+                    {
+                        qreal radiusDiff = sqrt( (double) (thisRadius*thisRadius + oradius*oradius) ) - thisRadius;
+                        aiOrb->growBy(radiusDiff/4);
+                        aiOrb->setActualRadius(aiOrb->getActualRadius() + radiusDiff/4);
+                    }
+                }
             }
         }
 
@@ -281,8 +298,8 @@ void Game::collidePlayer()
             if (player->getRadius() < 300)
             {
                 qreal radiusDiff = sqrt( (double) (pRadius*pRadius + aiRadius*aiRadius) ) - pRadius;
-                player->setActualRadius(player->getActualRadius() + radiusDiff);
-                player->growBy(radiusDiff);
+                player->setActualRadius(player->getActualRadius() + radiusDiff/4);
+                player->growBy(radiusDiff/4);
             }
         }
 
@@ -306,6 +323,9 @@ void Game::collidePlayer()
             player->setPos(1500,(scale - 1)*4000 + 2000);
             player->setRadius(40);
             player->setActualRadius(40*pow(2,scale - 1));
+
+            //Remove all velocity and acceleration
+            player->stop();
 
             // Add one to deaths
             deaths++;

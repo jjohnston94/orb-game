@@ -23,7 +23,7 @@ PlayerOrb::PlayerOrb()
     actualRadius = radius;
     setPos(1500, 1000);
     setAcceleration(2);
-    setMaxVelocity(20);
+    setMaxVelocity(10);
 
     for (int i = 0; i < 4; i++)
     {
@@ -120,19 +120,31 @@ void PlayerOrb::shrinkBy(qreal amount)
 
 void PlayerOrb::correctImage()
 {
-    qreal inc = 160;
+    qreal inc = 96.875;
     if (actualRadius > inc*5)
+    {
         imageSource = ":/images/resources/mc6.png";
+    }
     else if (actualRadius > inc*4)
+    {
         imageSource = ":/images/resources/mc5.png";
+    }
     else if (actualRadius > inc*3)
+    {
         imageSource = ":/images/resources/mc4.png";
+    }
     else if (actualRadius > inc*2)
+    {
         imageSource = ":/images/resources/mc3.png";
+    }
     else if (actualRadius > inc)
+    {
         imageSource = ":/images/resources/mc2.png";
+    }
     else
+    {
         imageSource = ":/images/resources/mc1.png";
+    }
 }
 
 void PlayerOrb::move()
@@ -190,5 +202,16 @@ void PlayerOrb::move()
     {
         setPos(x(), ((game->getScale() - 1) * 4000) + 1);
         yVel = 0;
+    }
+}
+
+// Full stop for the player (to reset velocities if necessary)
+void PlayerOrb::stop()
+{
+    xVel = 0;
+    yVel = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        dirVelocity[i] = 0;
     }
 }

@@ -8,6 +8,8 @@
 #include <QGraphicsView>
 #include <QList>
 #include <QObject>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 class Game : public QObject
 {
@@ -28,6 +30,9 @@ private:
     PlayerOrb * player;
     QGraphicsScene * scene;
     QGraphicsView * view;
+    QMediaPlaylist * playlist;
+    QMediaPlayer * music;
+    QMediaPlayer * bloop;
 
     int SCENE_WIDTH;
     int SCENE_HEIGHT;

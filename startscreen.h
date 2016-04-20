@@ -12,9 +12,11 @@ public:
 private slots:
     void play();
     void instructions();
+    void report();
 private:
     Button *createButton(const QString &text, const char *member);
     QWidget * instructionsScreen;
+    QWidget * reportScreen;
 
 };
 

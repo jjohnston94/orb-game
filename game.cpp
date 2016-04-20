@@ -6,8 +6,6 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <typeinfo>
-#include <QPropertyAnimation>
-#include <QGraphicsOpacityEffect>
 
 Game::Game()
 {
@@ -50,6 +48,8 @@ Game::Game()
     // Set the background images (which are dependent on your own directory in which they are saved)
     scene->setBackgroundBrush(QPixmap("C:/Users/Luke/Documents/QtProjects/OrbalDilemma/resources/BG1.png"));
     scene->setForegroundBrush(QPixmap("C:/Users/Luke/Documents/QtProjects/OrbalDilemma/resources/BG.png"));
+
+    won = false;
 
     // Single timer that calls gameLoop which controls the movements of the other objects
     timer = new QTimer();
@@ -126,16 +126,20 @@ void Game::gameLoop()
     // Center the view on the player so that it follows the player around
     view->centerOn(player);
 
+    // Spawn feeders
+    spawnFeeders();
+
+    // Move AI if in view and check their collisions
+    moveCollideOrbs();
+
+    // Don't do these things if you won
     if (!won)
     {
+        // Cull dem bad orbs
+        cullBadOrbs();
+
         // Spawn AIOrbs if applicable
         spawnAI();
-
-        // Spawn feeders
-        spawnFeeders();
-
-        // Move AI if in view and check their collisions
-        moveCollideOrbs();
 
         // Make sure all of the AI grow/shrink regardless of whether they are in the view
         for (int i = 0; i < aiList->size(); i++)
@@ -158,7 +162,7 @@ void Game::gameLoop()
         scale = ((int) (player->y()/divisor)) + 1;
     }
 
-    if (player->y() >= SCENE_HEIGHT - player->getRadius()*2)
+    if (player->y()+5 >= SCENE_HEIGHT - player->getRadius()*2 && !won)
     {
         won = true;
         win();
@@ -330,9 +334,15 @@ void Game::collidePlayer()
 void Game::spawnFeeders()
 {
     int max = 25;
+    int heightRange;
+    if (won)
+        heightRange = SCENE_HEIGHT;
+    else
+        heightRange = 500;
+
     if (feederList->size() < max)
     {
-        FeederOrb * newFeeder = new FeederOrb((qrand() % 15)+5, qrand() % 3000, qrand() % 500);
+        FeederOrb * newFeeder = new FeederOrb((qrand() % 15)+5, qrand() % SCENE_WIDTH, qrand() % heightRange);
         feederList->append(newFeeder);
         scene->addItem(newFeeder);
     }
@@ -364,10 +374,11 @@ void Game::win()
 
     for (int i = 0; i < feederList->size();)
         deleteAI(feederList->at(i));
-    delete feederList;
 
     // Limit the screen size
     scene->setSceneRect(0,0, WINDOW_WIDTH-5, WINDOW_HEIGHT-5);
+    SCENE_WIDTH = WINDOW_WIDTH;
+    SCENE_HEIGHT = WINDOW_HEIGHT;
 
     // Credits HTML/text
     QGraphicsTextItem * credits = new QGraphicsTextItem();
@@ -392,11 +403,13 @@ void Game::win()
     scene->addItem(credits);
 
     // Statistic counters
-    /*
     QGraphicsTextItem * counters = new QGraphicsTextItem();
     counters->setPos(3*WINDOW_WIDTH/5, WINDOW_HEIGHT/8);
-    credits->setTextWidth(2*WINDOW_WIDTH/5);
-    credits->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Orbs Eaten:</span></span></p>"
-            "<p><span style=\"font-size:48px;\"><span style=\"font-family:georgia,serif;\">Deaths:</span></span></p>");
-    */
+    counters->setTextWidth(2*WINDOW_WIDTH/5);
+    counters->setHtml("<p><span style=\"font-family:georgia,serif;\"><span style=\"font-size:48px;\">Orbs Eaten: " + QString::number(orbsEaten) +
+                      "</span></span></p>"
+                      "<p><span style=\"font-size:48px;\"><span style=\"font-family:georgia,serif;\">Deaths: " + QString::number(deaths) +
+                      "</span></span></p>");
+    scene->addItem(counters);
+
 }

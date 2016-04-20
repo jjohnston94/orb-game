@@ -21,7 +21,7 @@ AIOrb::AIOrb(qreal radius, int x, int y)
 {
     QString sourceTypes[3] = {"orange", "purpleMask", "oreo"};
     baseImgName = sourceTypes[qrand() % 3];
-    imageSource = ":/images/resources/" + baseImgName + "Neutral.png";
+    imageSource = ":/images/resources/" + baseImgName + "Running.png";
     int thisScale = (y / 4000) + 1;
     setRadius((radius - 100*(thisScale - 1))/pow(2,(game->getScale() - thisScale))); // set the pixmap image and then scale it to the radius
     actualRadius = radius;
@@ -64,7 +64,6 @@ void AIOrb::move()
         qreal range = 50*maxVelocity; //The distance that an orb can see around itself is a function of its max velocity
         if (range < 200) range = 200;
         qreal xVMag = 0, yVMag = 0;
-        qreal chaseEffect = 0;
 
         //Check for a range around an orb, and then run from or chase the orbs in that range
         QList<QGraphicsItem *> closeOrb = scene()->items(QPolygonF()
@@ -90,31 +89,14 @@ void AIOrb::move()
             {
                 xVMag -= cos(angle)*(orbEffect);
                 yVMag += sin(angle)*(orbEffect);
-                chaseEffect -= orbEffect;
             }
             //This orb is larger, chase.
-            else if (radius > current->getRadius())
+            else if (radius > current ->getRadius())
             {
                 xVMag += cos(angle)*(orbEffect);
                 yVMag -= sin(angle)*(orbEffect);
-                chaseEffect += orbEffect;
             }
         }
-
-        //Change Orb Face
-        if (chaseEffect < 0)
-        {
-            imageSource = ":/images/resources/" + baseImgName + "Running.png";
-        }
-        else if (chaseEffect == 0)
-        {
-            imageSource = ":/images/resources/" + baseImgName + "Neutral.png";
-        }
-        else
-        {
-            imageSource = ":/images/resources/" + baseImgName + "Chasing.png";
-        }
-        setRadius(radius);
 
         //Scale xVMag and yVMag to the max velocity
         xVel = xVMag * maxVelocity / sqrt((double) xVMag*xVMag+yVMag*yVMag+0.0001);
